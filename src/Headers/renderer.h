@@ -1,7 +1,12 @@
 #pragma once
 
 #include <QD3D.h>
-#include <SDL_opengl.h>
+
+#ifdef __3DS__
+	#include <GL/gl.h>
+#else
+	#include <SDL_opengl.h>
+#endif
 
 #if _DEBUG
 #define CHECK_GL_ERROR()												\

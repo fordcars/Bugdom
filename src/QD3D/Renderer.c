@@ -7,10 +7,20 @@
 /*    EXTERNALS             */
 /****************************/
 
+#ifdef __3DS__
+#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 #include "game.h"
 #include <SDL.h>
-#include <SDL_opengl.h>
-#include <SDL_opengl_glext.h>
+
+#ifdef __3DS__
+	#include <GL/gl.h>
+#else
+	#include <SDL_opengl.h>
+	#include <SDL_opengl_glext.h>
+#endif
+
 #include <QD3D.h>
 #include <stdlib.h>		// qsort
 #include <stdio.h>
@@ -130,6 +140,10 @@ static SDL_GLContext gGLContext = NULL;
 
 static RendererState gState;
 
+#ifdef __3DS__
+// Missing typedef for 3ds
+typedef void (*PFNGLDRAWRANGEELEMENTSPROC) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
+#endif
 static PFNGLDRAWRANGEELEMENTSPROC __glDrawRangeElements;
 
 float gGammaFadeFactor = 1.0f;
@@ -144,8 +158,12 @@ static TQ3TriMeshData* gFullscreenQuad = nil;
 
 static void Render_GetGLProcAddresses(void)
 {
+#ifdef __3DS__
+	__glDrawRangeElements = &glDrawRangeElements;
+#else
 	__glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)SDL_GL_GetProcAddress("glDrawRangeElements");
 	GAME_ASSERT(__glDrawRangeElements);
+#endif
 }
 
 static void __SetInitialState(GLenum stateEnum, bool* stateFlagPtr, bool initialValue)
@@ -246,11 +264,12 @@ void Render_CreateContext(void)
 	gGLContext = SDL_GL_CreateContext(gSDLWindow);
 
 	GAME_ASSERT(gGLContext);
+#endif
 
 	// On Windows, proc addresses are only valid for the current context,
 	// so we must get proc addresses everytime we recreate the context.
 	Render_GetGLProcAddresses();
-#endif
+
 }
 
 void Render_DeleteContext(void)
@@ -529,6 +548,7 @@ void Render_StartFrame(void)
 {
 #ifdef __3DS__
 	int mkc = 0;
+	WaitForVBlank3ds();
 #else
 	int mkc = SDL_GL_MakeCurrent(gSDLWindow, gGLContext);
 #endif
