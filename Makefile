@@ -38,7 +38,7 @@ DATA		:=	Data
 INCLUDES	:=	src 3dsheaders extern/Pomme/src extern/Pomme/src/QD3D src/Headers
 GRAPHICS	:=	gfx
 GFXBUILD	:=	$(BUILD)
-#ROMFS		:=	romfs
+#ROMFS		:=	Data
 #GFXBUILD	:=	$(ROMFS)/gfx
 
 #---------------------------------------------------------------------------------

@@ -53,6 +53,8 @@ static fs::path FindGameData()
 
 	dataPath = pathbuf;
 	dataPath = dataPath.parent_path().parent_path() / "Resources";
+#elif __3DS__
+	dataPath = "Bugdom/Data";
 #else
 	dataPath = "Data";
 #endif
@@ -135,7 +137,9 @@ static void Boot()
 	if (gCommandLine.msaa != 0)
 		gGamePrefs.antialiasingLevel = gCommandLine.msaa;
 
+#ifndef __3DS__
 tryAgain:
+#endif
 	// Set up GL attributes
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -172,6 +176,7 @@ tryAgain:
 
 	if (!gSDLWindow)
 	{
+#ifndef __3DS__
 		if (gGamePrefs.antialiasingLevel == 0)
 		{
 			throw std::runtime_error("Couldn't create SDL window.");
@@ -181,6 +186,7 @@ tryAgain:
 			gGamePrefs.antialiasingLevel = 0;
 			goto tryAgain;
 		}
+#endif
 	}
 
 	// Find path to game data folder

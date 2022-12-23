@@ -240,6 +240,9 @@ void DoFatalGLError(GLenum error, const char* file, int line)
 
 void Render_CreateContext(void)
 {
+#ifdef __3DS__
+	gGLContext = 1;
+#else
 	gGLContext = SDL_GL_CreateContext(gSDLWindow);
 
 	GAME_ASSERT(gGLContext);
@@ -247,6 +250,7 @@ void Render_CreateContext(void)
 	// On Windows, proc addresses are only valid for the current context,
 	// so we must get proc addresses everytime we recreate the context.
 	Render_GetGLProcAddresses();
+#endif
 }
 
 void Render_DeleteContext(void)
@@ -523,7 +527,11 @@ void Render_Load3DMFTextures(TQ3MetaFile* metaFile, GLuint* outTextureNames, boo
 
 void Render_StartFrame(void)
 {
+#ifdef __3DS__
+	int mkc = 0;
+#else
 	int mkc = SDL_GL_MakeCurrent(gSDLWindow, gGLContext);
+#endif
 	GAME_ASSERT_MESSAGE(mkc == 0, SDL_GetError());
 
 	// Clear rendering statistics
