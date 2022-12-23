@@ -532,7 +532,11 @@ SDL_GameController* TryOpenController(bool showMessage)
 		if (SDL_IsGameController(i))
 		{
 			gSDLController = SDL_GameControllerOpen(i);
+#ifdef __3DS__
+			gSDLJoystickInstanceID = 0;
+#else
 			gSDLJoystickInstanceID = SDL_JoystickGetDeviceInstanceID(i);
+#endif
 		}
 	}
 

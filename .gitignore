@@ -20,3 +20,8 @@ src/Headers/version.h
 
 # macOS metadata
 .DS_Store
+
+# 3DS builds
+*.3dsx
+*.elf
+*.smdh

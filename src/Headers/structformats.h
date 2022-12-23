@@ -16,7 +16,7 @@
 #define STRUCTFORMAT_File_FenceDefType				"Hhi4h"
 #define STRUCTFORMAT_FencePointType					"2i"
 
-#define BYTESWAP_STRUCTS(type, n, ptr) ByteswapStructs(STRUCTFORMAT_##type, sizeof(type), n, ptr)
+#define BYTESWAP_STRUCTS(type, n, ptr) UnpackStructs(STRUCTFORMAT_##type, sizeof(type), n, ptr)
 
 #define BYTESWAP_SCALAR_ARRAY_HANDLE(type, handle) \
 	ByteswapInts(sizeof(type), GetHandleSize(handle)/sizeof(type), *(handle))
@@ -32,6 +32,6 @@
 {                                                                                            \
 	if ((n) * sizeof(type) != (unsigned long) GetHandleSize((Handle) (handle)))              \
 		DoFatalAlert2("byteswap structs: size mismatch", #n);                                \
-	ByteswapStructs(STRUCTFORMAT_##type, sizeof(type), (n), *(handle));                      \
+	UnpackStructs(STRUCTFORMAT_##type, sizeof(type), (n), *(handle));                      \
 }
 

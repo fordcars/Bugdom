@@ -152,7 +152,11 @@ tryAgain:
 	float screenFillRatio = 2.0f / 3.0f;
 
 	SDL_Rect displayBounds = { .x = 0, .y = 0, .w = GAME_VIEW_WIDTH, .h = GAME_VIEW_HEIGHT };
+#ifdef __3DS__
+	SDL_GetDisplayBounds(display, &displayBounds);
+#else
 	SDL_GetDisplayUsableBounds(display, &displayBounds);
+#endif
 	TQ3Vector2D fitted = FitRectKeepAR(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT, displayBounds.w, displayBounds.h);
 	int initialWidth  = (int) (fitted.x * screenFillRatio);
 	int initialHeight = (int) (fitted.y * screenFillRatio);
