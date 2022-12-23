@@ -2,8 +2,14 @@
 // window.h
 //
 
-#define GAME_VIEW_WIDTH		(640)
-#define GAME_VIEW_HEIGHT	(480)
+#ifdef __3DS__
+    #define GAME_VIEW_WIDTH		(800)
+    #define GAME_VIEW_HEIGHT	(240)
+#else
+    #define GAME_VIEW_WIDTH		(640)
+    #define GAME_VIEW_HEIGHT	(480)
+#endif
+
 
 extern void	InitWindowStuff(void);
 extern	void MakeFadeEvent(Boolean	fadeIn);

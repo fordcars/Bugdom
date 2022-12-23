@@ -34,7 +34,9 @@ void InitWindowStuff(void)
 {
 		/* SET FULLSCREEN MODE ACCORDING TO PREFS */
 
+#ifndef __3DS__
 	SetFullscreenMode();
+#endif
 
 		/* SHOW A COUPLE BLACK FRAMES BEFORE WE BEGIN */
 

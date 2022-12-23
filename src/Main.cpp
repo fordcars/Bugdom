@@ -125,11 +125,13 @@ static void Boot()
 	// Start our "machine"
 	Pomme::Init();
 
+#ifndef __3DS__
 	// Initialize SDL video subsystem
 	if (0 != SDL_Init(SDL_INIT_VIDEO))
 	{
 		throw std::runtime_error("Couldn't initialize SDL video subsystem.");
 	}
+#endif
 
 	// Load our prefs
 	InitPrefs();
@@ -139,7 +141,6 @@ static void Boot()
 
 #ifndef __3DS__
 tryAgain:
-#endif
 	// Set up GL attributes
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -149,6 +150,7 @@ tryAgain:
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, gGamePrefs.antialiasingLevel);
 	}
+#endif
 	gAntialiasingLevelAppliedOnBoot = gGamePrefs.antialiasingLevel;
 
 	// Prepare window dimensions
@@ -156,11 +158,8 @@ tryAgain:
 	float screenFillRatio = 2.0f / 3.0f;
 
 	SDL_Rect displayBounds = { .x = 0, .y = 0, .w = GAME_VIEW_WIDTH, .h = GAME_VIEW_HEIGHT };
-#ifdef __3DS__
-	SDL_GetDisplayBounds(display, &displayBounds);
-#else
+#ifndef __3DS__
 	SDL_GetDisplayUsableBounds(display, &displayBounds);
-#endif
 	TQ3Vector2D fitted = FitRectKeepAR(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT, displayBounds.w, displayBounds.h);
 	int initialWidth  = (int) (fitted.x * screenFillRatio);
 	int initialHeight = (int) (fitted.y * screenFillRatio);
@@ -176,7 +175,6 @@ tryAgain:
 
 	if (!gSDLWindow)
 	{
-#ifndef __3DS__
 		if (gGamePrefs.antialiasingLevel == 0)
 		{
 			throw std::runtime_error("Couldn't create SDL window.");
@@ -186,8 +184,10 @@ tryAgain:
 			gGamePrefs.antialiasingLevel = 0;
 			goto tryAgain;
 		}
-#endif
 	}
+#else
+	gSDLWindow = nullptr;
+#endif
 
 	// Find path to game data folder
 	fs::path dataPath = FindGameData();
@@ -209,7 +209,9 @@ static void Shutdown()
 
 	if (gSDLWindow)
 	{
+#ifndef __3DS__
 		SDL_DestroyWindow(gSDLWindow);
+#endif
 		gSDLWindow = nullptr;
 	}
 

@@ -10,6 +10,10 @@
 /*    EXTERNALS             */
 /****************************/
 
+#ifdef __3DS__
+#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 #include <SDL_opengl.h>
 #include <stdio.h>
 #include "game.h"
@@ -278,7 +282,6 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(const QD
 	GAME_ASSERT(setupInfo->isActive);									// make sure it's legit
 
 			/* START RENDERING */
-
 	Render_StartFrame();
 
 			/* SET UP VIEWPORT */
@@ -337,7 +340,11 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(const QD
 
 	Render_EndFrame();
 
+#ifdef __3DS__
+	SwapBuffers3ds();
+#else
 	SDL_GL_SwapWindow(gSDLWindow);
+#endif
 }
 
 

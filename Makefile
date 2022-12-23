@@ -63,7 +63,7 @@ LIBS	:= -lSDL2 -lPomme -lpicaGL -lctru -lm
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:= $(CTRULIB) $(DEVKITPRO)/portlibs/3ds $(CURDIR)/extern/Pomme $(CURDIR)/extern/Pomme/extern/SDL-3DS $(CURDIR)/extern/picaGL
+LIBDIRS	:= $(CTRULIB) $(DEVKITPRO)/portlibs/3ds $(CURDIR)/extern/Pomme $(CURDIR)/extern/Pomme/extern/SDL-3DS $(CURDIR)/extern/Pomme/extern/picaGL
 
 
 #---------------------------------------------------------------------------------

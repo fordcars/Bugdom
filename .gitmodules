@@ -1,6 +1,3 @@
 [submodule "extern/Pomme"]
 	path = extern/Pomme
 	url = https://github.com/fordcars/Pomme
-[submodule "extern/picaGL"]
-	path = extern/picaGL
-	url = https://github.com/masterfeizz/picaGL

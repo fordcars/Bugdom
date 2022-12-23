@@ -837,6 +837,7 @@ unsigned long	someLong;
 	Pomme_FlushPtrTracking(false);
 
 	DoPangeaLogo();
+	while(true){printf("Main2.c");}/////////////////////////////////////////////////////////////////////REMOVE THIS
 	CheckDebugShortcutKeysOnBoot();
 
 
