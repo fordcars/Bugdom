@@ -878,6 +878,9 @@ static void SendGeometry(const MeshQueueEntry* entry)
 		gState.currentTransform = entry->transform;
 	}
 
+	glDisable(GL_DEPTH_TEST);
+	glEnableClientState(GL_VERTEX_ARRAY);
+
 	// Draw the mesh
 	__glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints-1, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
 	CHECK_GL_ERROR();
