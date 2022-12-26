@@ -3,7 +3,7 @@
 //
 
 #ifdef __3DS__
-    #define GAME_VIEW_WIDTH		(800)
+    #define GAME_VIEW_WIDTH		(400)
     #define GAME_VIEW_HEIGHT	(240)
 #else
     #define GAME_VIEW_WIDTH		(640)
