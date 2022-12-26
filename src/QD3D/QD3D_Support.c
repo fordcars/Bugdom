@@ -287,7 +287,6 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(const QD
 	Render_StartFrame();
 
 			/* SET UP VIEWPORT */
-#ifndef __3DS__
 	if (setupInfo->needPaneClip || gGamePrefs.force4x3AspectRatio)
 	{
 		// Set scissor
@@ -302,7 +301,6 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(const QD
 		setupInfo->aspectRatio = gWindowWidth / (gWindowHeight + .001f);
 		Render_SetViewport(0, 0, gWindowWidth, gWindowHeight);
 	}
-#endif
 
 			/* SET UP CAMERA */
 

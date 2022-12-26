@@ -1106,6 +1106,9 @@ TQ3Vector2D FitRectKeepAR(
 
 void Render_Enter2D_Full640x480(void)
 {
+#ifdef __3DS__
+	glViewport(0, 0, gWindowWidth, gWindowHeight);
+#else
 	if (gGamePrefs.force4x3AspectRatio)
 	{
 		TQ3Vector2D fitted = FitRectKeepAR(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT, gWindowWidth, gWindowHeight);
@@ -1119,6 +1122,7 @@ void Render_Enter2D_Full640x480(void)
 	{
 		glViewport(0, 0, gWindowWidth, gWindowHeight);
 	}
+#endif
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
