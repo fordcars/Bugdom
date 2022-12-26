@@ -378,6 +378,7 @@ void CalcCameraMatrixInfo(QD3DSetupOutputType *setupInfo)
 
 	for (int i = 0; i < setupInfo->lightList.numFillLights; i++)
 	{
+#ifndef __3DS__ // Unsupported on 3ds
 		GLfloat lightVec[4];
 
 		lightVec[0] = -setupInfo->lightList.fillDirection[i].x;			// negate vector because OGL is stupid
@@ -385,6 +386,7 @@ void CalcCameraMatrixInfo(QD3DSetupOutputType *setupInfo)
 		lightVec[2] = -setupInfo->lightList.fillDirection[i].z;
 		lightVec[3] = 0;									// when w==0, this is a directional light, if 1 then point light
 		glLightfv(GL_LIGHT0+i, GL_POSITION, lightVec);
+#endif
 	}
 
 

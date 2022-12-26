@@ -321,8 +321,10 @@ void Render_InitState(const TQ3ColorRGBA* clearColor)
 	
 	// Set misc GL defaults that apply throughout the entire game
 	glAlphaFunc(GL_GREATER, 0.4999f);
+#ifndef __3DS__ // Unsupported on 3ds
 	glFrontFace(GL_CCW);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+#endif
 
 	// Set up mesh queue
 	gMeshQueueSize = 0;
@@ -356,6 +358,7 @@ void Render_EnableFog(
 		float fogYon,
 		TQ3ColorRGBA fogColor)
 {
+#ifndef __3DS__ // Unsupported on 3ds
 	(void) camHither;
 
 	glHint(GL_FOG_HINT,		GL_NICEST);
@@ -363,6 +366,7 @@ void Render_EnableFog(
 	glFogf(GL_FOG_START,	fogHither * camYon);
 	glFogf(GL_FOG_END,		fogYon * camYon);
 	glFogfv(GL_FOG_COLOR,	&fogColor.r);
+#endif
 	gState.sceneHasFog = true;
 }
 
@@ -976,8 +980,10 @@ static void BeginShadingPass(const MeshQueueEntry* entry)
 	// Submit normal data if any
 	if (mesh->hasVertexNormals && !(statusBits & STATUS_BIT_NULLSHADER))
 	{
+#ifndef __3DS__ // Unsupported on 3ds
 		EnableClientState(GL_NORMAL_ARRAY);
 		glNormalPointer(GL_FLOAT, 0, mesh->vertexNormals);
+#endif
 	}
 	else
 	{

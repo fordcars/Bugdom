@@ -220,6 +220,7 @@ QD3DSetupOutputType	*data;
 
 static void CreateLights(QD3DLightDefType *lightDefPtr)
 {
+#ifndef __3DS__ // Unsupported on 3ds
 			/************************/
 			/* CREATE AMBIENT LIGHT */
 			/************************/
@@ -273,6 +274,7 @@ static void CreateLights(QD3DLightDefType *lightDefPtr)
 	{
 		glDisable(GL_LIGHT0 + i);
 	}
+#endif
 }
 
 
