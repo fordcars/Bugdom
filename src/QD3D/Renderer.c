@@ -295,7 +295,7 @@ void Render_InitState(const TQ3ColorRGBA* clearColor)
 	SetInitialState(GL_NORMALIZE,		true);		// Normalize normal vectors. Required so lighting looks correct on scaled meshes.
 	SetInitialState(GL_CULL_FACE,		true);
 	SetInitialState(GL_ALPHA_TEST,		true);
-	SetInitialState(GL_DEPTH_TEST,		true);
+	//SetInitialState(GL_DEPTH_TEST,		true);
 	SetInitialState(GL_COLOR_MATERIAL,	true);
 	SetInitialState(GL_TEXTURE_2D,		false);
 	SetInitialState(GL_BLEND,			false);
@@ -879,9 +879,6 @@ static void SendGeometry(const MeshQueueEntry* entry)
 
 		gState.currentTransform = entry->transform;
 	}
-
-	glDisable(GL_DEPTH_TEST);
-	glEnableClientState(GL_VERTEX_ARRAY);
 
 	// Draw the mesh
 	__glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints-1, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
