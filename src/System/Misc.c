@@ -79,6 +79,10 @@ void DoFatalAlert(const char* s)
 		SDL_SetWindowFullscreen(gSDLWindow, 0);
 	printf("BUGDOM FATAL ALERT: %s\n", s);
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Bugdom", s, gSDLWindow);
+#ifdef __3DS__
+	// To have time to see the alert on 3ds
+	while(true){}
+#endif
 	CleanQuit();
 }
 
@@ -92,6 +96,10 @@ void DoFatalAlert2(const char* s1, const char* s2)
 	static char alertbuf[1024];
 	snprintf(alertbuf, 1024, "%s\n%s", s1, s2);
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Bugdom", alertbuf, gSDLWindow);
+#ifdef __3DS__
+	// To have time to see the alert on 3ds
+	while(true){}
+#endif
 	ExitToShell();
 }
 
@@ -105,6 +113,10 @@ void DoAssert(const char* msg, const char* file, int line)
 	static char alertbuf[1024];
 	snprintf(alertbuf, 1024, "%s\n%s:%d", msg, file, line);
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Bugdom: Assertion Failed!", alertbuf, gSDLWindow);
+#ifdef __3DS__
+	// To have time to see the alert on 3ds
+	while(true){}
+#endif
 	ExitToShell();
 }
 
