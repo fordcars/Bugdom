@@ -259,7 +259,7 @@ void DoFatalGLError(GLenum error, const char* file, int line)
 void Render_CreateContext(void)
 {
 #ifdef __3DS__
-	gGLContext = 1;
+	gGLContext = NULL;
 #else
 	gGLContext = SDL_GL_CreateContext(gSDLWindow);
 
@@ -391,7 +391,9 @@ GLuint Render_LoadTexture(
 		const GLvoid* pixels,
 		RendererTextureFlags flags)
 {
+#ifndef __3DS__
 	GAME_ASSERT(gGLContext);
+#endif
 
 	GLuint textureName;
 
