@@ -417,6 +417,11 @@ static	SndCommand 		mySndCmd;
 int		volume;
 OSErr	iErr;
 
+#ifdef __3DS__
+	// Disable songs on 3ds
+	return;
+#endif
+
 	if (songNum == gCurrentSong)					// see if this is already playing
 		return;
 
