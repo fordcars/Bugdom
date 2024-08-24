@@ -157,7 +157,9 @@ QD3DSetupOutputType	*outputPtr;
 
 				/* SET UP OPENGL RENDERER PROPERTIES NOW THAT WE HAVE A CONTEXT */
 
+#ifndef __3DS__
 	SDL_GL_SetSwapInterval(gCommandLine.vsync);
+#endif
 
 	CreateLights(&setupDefPtr->lights);
 
@@ -341,10 +343,11 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(const QD
 
 	Render_EndFrame();
 
-#ifndef __3DS__
-	SDL_GL_SwapWindow(gSDLWindow);
-#elif defined __3DS__
+
+#ifdef __3DS__
 	SwapBuffers3ds();
+#else
+	SDL_GL_SwapWindow(gSDLWindow);
 #endif
 }
 

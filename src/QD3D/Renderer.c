@@ -128,7 +128,9 @@ const RenderModifiers kDefaultRenderMods_Pillarbox =
 /*    VARIABLES             */
 /****************************/
 
+#ifdef __3DS__
 static SDL_GLContext gGLContext = NULL;
+#endif
 
 static RendererState gState;
 
@@ -274,8 +276,10 @@ void Render_InitState(const TQ3ColorRGBA* clearColor)
 	SetInitialState(GL_COLOR_MATERIAL,	true);
 	SetInitialState(GL_TEXTURE_2D,		false);
 	SetInitialState(GL_BLEND,			false);
+#ifndef __3DS__
 	SetInitialState(GL_LIGHTING,		true);
 	SetInitialState(GL_FOG,				false);
+#endif
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	gState.blendFuncIsAdditive = false;		// must match glBlendFunc call above!
@@ -863,7 +867,12 @@ static void SendGeometry(const MeshQueueEntry* entry)
 	}
 
 	// Draw the mesh
+#ifdef __3DS__
+	// 3DS only supports GL_UNSIGNED_SHORT for glDrawElements
+	glDrawElements(GL_TRIANGLES, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
+#else
 	glDrawElements(GL_TRIANGLES, mesh->numTriangles*3, GL_UNSIGNED_INT, mesh->triangles);
+#endif
 	CHECK_GL_ERROR();
 
 	// Pass 2 to draw transparent meshes without face culling (see above for an explanation)
@@ -873,7 +882,12 @@ static void SendGeometry(const MeshQueueEntry* entry)
 		glCullFace(GL_BACK);	// pass 2: draw frontfaces (cull backfaces)
 
 		// Draw the mesh again
-		glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_INT, mesh->triangles);
+#ifdef __3DS__
+		// 3DS only supports GL_UNSIGNED_SHORT for glDrawElements
+		glDrawElements(GL_TRIANGLES, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
+#else
+		glDrawElements(GL_TRIANGLES, mesh->numTriangles*3, GL_UNSIGNED_INT, mesh->triangles);
+#endif
 		CHECK_GL_ERROR();
 	}
 }
@@ -896,8 +910,10 @@ static void BeginDepthPass(const MeshQueueEntry* entry)
 	DisableClientState(GL_NORMAL_ARRAY);
 	EnableState(GL_DEPTH_TEST);
 
+#ifndef __3DS__
 	DisableState(GL_LIGHTING);
 	DisableState(GL_FOG);
+#endif
 
 	// Texture mapping
 	if (gDebugMode != DEBUG_MODE_NOTEXTURES &&
@@ -934,9 +950,10 @@ static void BeginShadingPass(const MeshQueueEntry* entry)
 		EnvironmentMapTriMesh(mesh, entry->transform);
 
 	// Apply gouraud or null illumination
+#ifndef __3DS__
 	SetState(GL_LIGHTING,
 			!( (statusBits & STATUS_BIT_NULLSHADER) || (mesh->texturingMode & kQ3TexturingModeExt_NullShaderFlag) ));
-
+#endif
 	// Apply fog or not
 	SetState(GL_FOG, gState.sceneHasFog && !(statusBits & STATUS_BIT_NOFOG));
 
@@ -1054,7 +1071,9 @@ void Render_ResetColor(void)
 {
 	DisableState(GL_BLEND);
 	DisableState(GL_ALPHA_TEST);
+#ifndef __3DS__
 	DisableState(GL_LIGHTING);
+#endif
 	DisableState(GL_TEXTURE_2D);
 	DisableClientState(GL_NORMAL_ARRAY);
 	DisableClientState(GL_COLOR_ARRAY);

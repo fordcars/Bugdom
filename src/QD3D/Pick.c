@@ -86,7 +86,11 @@ bool PickObject(int mouseX, int mouseY, int32_t *pickID)
 
 			for (int t = 0; t < mesh->numTriangles; t++)
 			{
+#ifdef __3DS__
+				const uint16_t* pointIndices = mesh->triangles[t].pointIndices;
+#else
 				const uint32_t* pointIndices = mesh->triangles[t].pointIndices;
+#endif
 				const TQ3Point3D* p0 = &transformedPoints[pointIndices[0]];
 				const TQ3Point3D* p1 = &transformedPoints[pointIndices[1]];
 				const TQ3Point3D* p2 = &transformedPoints[pointIndices[2]];
