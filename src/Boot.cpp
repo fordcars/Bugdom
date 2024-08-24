@@ -143,11 +143,13 @@ static void Boot(const char* executablePath)
 	// Start our "machine"
 	Pomme::Init();
 
+#ifndef __3DS__
 	// Initialize SDL video subsystem
 	if (0 != SDL_Init(SDL_INIT_VIDEO))
 	{
 		throw std::runtime_error("Couldn't initialize SDL video subsystem.");
 	}
+#endif
 
 	// Load our prefs
 	InitPrefs();
