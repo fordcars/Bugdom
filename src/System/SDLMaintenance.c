@@ -6,6 +6,10 @@
 #include "version.h"
 #include <stdio.h>
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 char						gTypedAsciiKey = '\0';
 
 static const uint32_t	kDebugTextUpdateInterval = 0;//50;
@@ -138,7 +142,14 @@ void DoSDLMaintenance(void)
 	}
 
 #ifdef __3DS__
-	QD3D_OnWindowResized(400, 240);
+	if(IsTopScreenSelected3ds())
+	{
+		QD3D_OnWindowResized(400, 240);
+	}
+	else
+	{
+		QD3D_OnWindowResized(320, 240);
+	}
 #else
 	// Ensure the clipping pane gets resized properly after switching in or out of fullscreen mode
 	int width, height;

@@ -12,6 +12,9 @@
 #include "game.h"
 #include <string.h>
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
 
 /****************************/
 /*    PROTOTYPES            */
@@ -854,10 +857,19 @@ unsigned long	someLong;
 			
 	while(true)
 	{
+#ifdef __3DS__
+		SelectTopScreen3ds(true);
 		DoTitleScreen();
+		SelectTopScreen3ds(false);
+#else
+		DoTitleScreen();
+#endif
 		if (DoMainMenu())
 			continue;
 		
+#ifdef __3DS__
+		SelectTopScreen3ds(true);
+#endif
 		PlayGame();
 	}
 	
