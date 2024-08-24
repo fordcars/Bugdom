@@ -14,6 +14,10 @@
 #include <stdio.h>
 #include "game.h"
 
+#ifdef __3DS__
+#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 
 /****************************/
 /*    PROTOTYPES            */
@@ -339,6 +343,8 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(const QD
 
 #ifndef __3DS__
 	SDL_GL_SwapWindow(gSDLWindow);
+#elif defined __3DS__
+	SwapBuffers3ds();
 #endif
 }
 

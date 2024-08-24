@@ -14,6 +14,9 @@
 #include <stdlib.h>		// qsort
 #include <stdio.h>
 
+#ifdef __3DS__
+#include "Platform/3ds/Pomme3ds.h"
+#endif
 
 #pragma mark -
 
@@ -545,6 +548,11 @@ void Render_StartFrame(void)
 	if (gIsInGame && gLevelType == LEVEL_TYPE_LAWN && gCyclorama && gDebugMode != DEBUG_MODE_WIREFRAME)
 		clearWhat &= ~GL_COLOR_BUFFER_BIT;
 #endif
+
+#ifdef __3DS__
+	WaitForVBlank3ds();
+#endif
+
 	glClear(clearWhat);
 
 	GAME_ASSERT(gState.currentTransform == NULL);

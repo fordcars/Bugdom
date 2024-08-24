@@ -137,7 +137,9 @@ void DoSDLMaintenance(void)
 		}
 	}
 
-#ifndef __3DS__
+#ifdef __3DS__
+	QD3D_OnWindowResized(400, 240);
+#else
 	// Ensure the clipping pane gets resized properly after switching in or out of fullscreen mode
 	int width, height;
 	SDL_GL_GetDrawableSize(gSDLWindow, &width, &height);
