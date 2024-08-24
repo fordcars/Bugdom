@@ -14,6 +14,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
 
 /**********************/
 /*     PROTOTYPES     */
@@ -183,6 +186,10 @@ TQ3Vector2D GetThumbStickVector(bool rightStick)
 	(void) rightStick;
 	return (TQ3Vector2D) {0,0};
 #else
+#ifdef __3DS__
+	float dx = Get3dsCPadX() / 155.0f;
+	float dy = Get3dsCPadY() / 155.0f;
+#else
 	if (!gSDLController)
 	{
 		return (TQ3Vector2D) { 0, 0 };
@@ -193,6 +200,7 @@ TQ3Vector2D GetThumbStickVector(bool rightStick)
 
 	float dx = dxRaw / 32767.0f;
 	float dy = dyRaw / 32767.0f;
+#endif
 
 	float magnitudeSquared = dx*dx + dy*dy;
 
@@ -231,6 +239,10 @@ TQ3Vector2D GetThumbStickVector(bool rightStick)
 
 void UpdateInput(void)
 {
+#ifdef __3DS__
+	ScanInput3ds();
+#else
+
 	SDL_PumpEvents();
 
 		/* CHECK FOR NEW MOUSE BUTTONS */
@@ -252,6 +264,7 @@ void UpdateInput(void)
 			UpdateKeyState(&gMouseButtonState[i], downNow);
 		}
 	}
+#endif
 
 		/* UPDATE KEYMAP */
 		
@@ -274,12 +287,16 @@ void UpdateInput(void)
 	gCameraControlDelta.x = 0;
 	gCameraControlDelta.y = 0;
 
+#ifndef __3DS
 	if (gSDLController)
 	{
+#endif
 		TQ3Vector2D rsVec = GetThumbStickVector(true);
 		gCameraControlDelta.x -= rsVec.x * 3.0f;
 		gCameraControlDelta.y += rsVec.y * 3.0f;
+#ifndef __3DS
 	}
+#endif
 
 	if (GetKeyState(kKey_SwivelCameraLeft))
 		gCameraControlDelta.x -= 2.0f;
@@ -323,6 +340,44 @@ void InvalidateKeyState(int need)
 
 void UpdateKeyMap(void)
 {
+#ifdef __3DS__
+	unsigned downButtons = GetHeldButtons3ds();
+
+	for (int i = 0; i < kKey_MAX; i++)
+	{
+		// TODO CARL: Improve 3DS bindings
+		bool downNow = false;
+		switch(i)
+		{
+			case kKey_Pause:          downNow = downButtons & POMME_3DS_KEY_START;  break;
+
+			case kKey_SwivelCameraLeft:  downNow = downButtons & POMME_3DS_KEY_L;   break;
+			case kKey_SwivelCameraRight: downNow = downButtons & POMME_3DS_KEY_R;   break;
+
+			case kKey_MorphPlayer:    downNow = downButtons & POMME_3DS_KEY_Y;      break;
+			case kKey_BuddyAttack:    downNow = downButtons & POMME_3DS_KEY_X;      break;
+			case kKey_Jump:           downNow = downButtons & POMME_3DS_KEY_A;      break;
+			case kKey_Kick:           downNow = downButtons & POMME_3DS_KEY_B;      break;
+
+			case kKey_Forward:        downNow = downButtons & POMME_3DS_KEY_DUP;    break;
+			case kKey_Backward:       downNow = downButtons & POMME_3DS_KEY_DDOWN;  break;
+			case kKey_Left:           downNow = downButtons & POMME_3DS_KEY_DLEFT;  break;
+			case kKey_Right:          downNow = downButtons & POMME_3DS_KEY_DRIGHT; break;
+
+			case kKey_UI_PadConfirm:  downNow = downButtons & POMME_3DS_KEY_A;      break;
+			case kKey_UI_PadCancel:   downNow = downButtons & POMME_3DS_KEY_B;      break;
+			case kKey_UI_PadBack:     downNow = downButtons & POMME_3DS_KEY_B;      break;
+			
+			case kKey_UI_CharMM:      downNow = downButtons & POMME_3DS_KEY_DUP;    break;
+			case kKey_UI_CharPP:      downNow = downButtons & POMME_3DS_KEY_DDOWN;  break;
+			case kKey_UI_CharLeft:    downNow = downButtons & POMME_3DS_KEY_DLEFT;  break;
+			case kKey_UI_CharRight:   downNow = downButtons & POMME_3DS_KEY_DRIGHT; break;
+			case kKey_UI_CharDelete:  downNow = downButtons & POMME_3DS_KEY_B;      break;
+			case kKey_UI_CharOK:      downNow = downButtons & POMME_3DS_KEY_A;      break;
+		}
+		UpdateKeyState(&gKeyStates[i], downNow);
+	}
+#else
 	SDL_PumpEvents();
 	int numkeys = 0;
 	const UInt8* keystate = SDL_GetKeyboardState(&numkeys);
@@ -381,6 +436,7 @@ void UpdateKeyMap(void)
 	{
 		CleanQuit();
 	}
+#endif
 }
 
 
@@ -457,9 +513,11 @@ void EatMouseEvents(void)
 
 void CaptureMouse(Boolean doCapture)
 {
+#ifndef __3DS__
 	SDL_PumpEvents();	// Prevent SDL from thinking mouse buttons are stuck as we switch into relative mode
 #if !OSXPPC
 	SDL_SetRelativeMouseMode(doCapture ? SDL_TRUE : SDL_FALSE);
+#endif
 #endif
 
 	if (doCapture)
@@ -501,8 +559,10 @@ void GetMouseDelta(float *dx, float *dy)
 
 		/* SEE IF OVERRIDE MOUSE WITH JOYSTICK MOVEMENT */
 
+#ifndef __3DS__
 	if (gSDLController)
 	{
+#endif
 		TQ3Vector2D lsVec = GetThumbStickVector(false);
 		if (lsVec.x != 0 || lsVec.y != 0)
 		{
@@ -510,7 +570,9 @@ void GetMouseDelta(float *dx, float *dy)
 			*dy = gFramesPerSecondFrac * 1600.0f * lsVec.y;
 			return;
 		}
+#ifndef __3DS__
 	}
+#endif
 
 		/* GET MOUSE MOVEMENT */
 
