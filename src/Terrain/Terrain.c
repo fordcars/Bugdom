@@ -532,7 +532,12 @@ int		numLayers;
 
 				if (superTile->glTextureName[layer][lod])
 				{
+#ifdef __3DS__
+					GLuint texName = superTile->glTextureName[layer][lod];
+					glDeleteTextures(1, &texName);
+#else
 					glDeleteTextures(1, &superTile->glTextureName[layer][lod]);
+#endif
 					superTile->glTextureName[layer][lod] = 0;
 				}
 			}

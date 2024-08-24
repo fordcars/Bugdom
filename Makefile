@@ -33,10 +33,10 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	Bugdom
 BUILD		:=	build
-SOURCES		:=	src src/Enemies src/Items src/Player src/QD3D src/Ride src/Screens src/Skeleton
+SOURCES		:=	src src/Enemies src/Items src/Player src/QD3D src/Ride src/Screens src/Skeleton \
 				src/System src/Terrain
 DATA		:=	other_data
-INCLUDES	:=	src/Headers extern extern/Pomme/src extern/Pomme/extern/picaGL/include
+INCLUDES	:=	src/Headers extern extern/Pomme/src extern/Pomme/src/QD3D extern/Pomme/extern/picaGL/include
 GRAPHICS	:=	gfx
 GFXBUILD	:=	$(BUILD)
 ROMFS		:=	Data
@@ -60,7 +60,7 @@ CXXFLAGS	:= $(CFLAGS) -fexceptions
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:=  -lSDL2main -lSDL2 -L/home/fcdev/Documents/Github/Budom/extern/Pomme/lib -lPomme -L/home/fcdev/Documents/Github/Bugdom/extern/Pomme/extern/picaGL/lib -lpicaGL -lctru -lm
+LIBS	:=  -lSDL2main -lSDL2 -L/home/fcdev/Documents/Github/Bugdom/extern/Pomme/lib -lPomme -L/home/fcdev/Documents/Github/Bugdom/extern/Pomme/extern/picaGL/lib -lpicaGL -lctru -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

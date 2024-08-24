@@ -43,8 +43,10 @@ static uint32_t seed0 = 0x2a80ce30, seed1 = 0, seed2 = 0;
 
 void DoAlert(const char* format, ...)
 {
+#ifndef __3DS__
 	if (gSDLWindow)
 		SDL_SetWindowFullscreen(gSDLWindow, 0);
+#endif
 
 	char message[1024];
 	va_list args;
@@ -53,7 +55,9 @@ void DoAlert(const char* format, ...)
 	va_end(args);
 
 	printf("BUGDOM ALERT: %s\n", message);
+#ifndef __3DS__
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Bugdom", message, gSDLWindow);
+#endif
 }
 
 
@@ -61,8 +65,10 @@ void DoAlert(const char* format, ...)
 
 void DoFatalAlert(const char* format, ...)
 {
+#ifndef __3DS__
 	if (gSDLWindow)
 		SDL_SetWindowFullscreen(gSDLWindow, 0);
+#endif
 
 	char message[1024];
 	va_list args;
@@ -71,7 +77,9 @@ void DoFatalAlert(const char* format, ...)
 	va_end(args);
 
 	printf("BUGDOM FATAL ALERT: %s\n", message);
+#ifndef __3DS__
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Bugdom", message, gSDLWindow);
+#endif
 	ExitToShell();
 }
 

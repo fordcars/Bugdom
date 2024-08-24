@@ -400,7 +400,9 @@ void DoModelDebug(void)
 						1+gCurrentModelType,
 						gNumObjectsInGroupList[MODEL_GROUP_LEVELSPECIFIC]);
 			}
+#ifndef __3DS__
 			SDL_SetWindowTitle(gSDLWindow, titlebuf);
+#endif
 		}
 		
 	} while (!GetKeyState(kKey_UI_Cancel));

@@ -137,6 +137,7 @@ void DoSDLMaintenance(void)
 		}
 	}
 
+#ifndef __3DS__
 	// Ensure the clipping pane gets resized properly after switching in or out of fullscreen mode
 	int width, height;
 	SDL_GL_GetDrawableSize(gSDLWindow, &width, &height);
@@ -151,4 +152,5 @@ void DoSDLMaintenance(void)
 
 		glPolygonMode(GL_FRONT_AND_BACK, gDebugMode == DEBUG_MODE_WIREFRAME? GL_LINE: GL_FILL);
 	}
+#endif
 }

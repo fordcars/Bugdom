@@ -337,7 +337,9 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(const QD
 
 	Render_EndFrame();
 
+#ifndef __3DS__
 	SDL_GL_SwapWindow(gSDLWindow);
+#endif
 }
 
 

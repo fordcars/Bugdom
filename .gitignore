@@ -17,3 +17,8 @@ extern/SDL*
 
 # macOS metadata
 .DS_Store
+
+# 3DS
+*.3dsx
+*.elf
+*.smdh

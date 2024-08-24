@@ -220,6 +220,7 @@ void QD3D_OnWindowResized(int windowWidth, int windowHeight)
 
 void SetFullscreenMode(void)
 {
+#ifndef __3DS__
 #if OSXPPC
 	static bool didSwitchOnce = false;		// called at start of game, so allow switching once only
 
@@ -278,6 +279,7 @@ void SetFullscreenMode(void)
 	// unless we flush SDL events immediately after entering fullscreen mode.
 	SDL_PumpEvents();
 	SDL_FlushEvents(0, 0xFFFFFFFF);
+#endif
 }
 
 /*************** GET CURATED LIST OF DISPLAY MODES **************/

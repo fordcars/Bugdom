@@ -16,8 +16,9 @@
 extern "C"
 {
 	// bare minimum to satisfy externs in game code
+#ifndef __3DS__
 	SDL_Window* gSDLWindow = nullptr;
-
+#endif
 	CommandLineOptions gCommandLine;
 
 	// Tell Windows graphics driver that we prefer running on a dedicated GPU if available
@@ -45,6 +46,7 @@ static fs::path FindGameData(const char* executablePath)
 	if (!executablePath)
 		attemptNum = 2;
 
+#ifndef __3DS__
 tryAgain:
 	switch (attemptNum)
 	{
@@ -69,14 +71,22 @@ tryAgain:
 	attemptNum++;
 
 	dataPath = dataPath.lexically_normal();
+#elif defined __3DS__
+	dataPath = "romfs:";
+#endif
 
 	// Set data spec -- Lets the game know where to find its asset files
 	gDataSpec = Pomme::Files::HostPathToFSSpec(dataPath / "Skeletons");
 
-	FSSpec dummySpec;
-	if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:DoodleBug.3dmf", &dummySpec))
+	FSSpec someDataFileSpec;
+	OSErr iErr = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:DoodleBug.3dmf", &someDataFileSpec);
+	if (iErr)
 	{
+#ifdef __3DS__
+	throw std::runtime_error(std::string(gDataSpec.cName));
+#else
 		goto tryAgain;
+#endif
 	}
 
 	return dataPath;
@@ -126,7 +136,9 @@ static void ParseCommandLine(int argc, char** argv)
 
 static void Boot(const char* executablePath)
 {
+#ifndef __3DS__
 	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
+#endif
 
 	// Start our "machine"
 	Pomme::Init();
@@ -143,6 +155,7 @@ static void Boot(const char* executablePath)
 	if (gCommandLine.msaa != 0)
 		gGamePrefs.antialiasingLevel = gCommandLine.msaa;
 
+#ifndef __3DS__
 tryAgain:
 	// Set up GL attributes
 #if !(OSXPPC)
@@ -193,11 +206,12 @@ tryAgain:
 			goto tryAgain;
 		}
 	}
+#endif
 
 	// Find path to game data folder
 	fs::path dataPath = FindGameData(executablePath);
 
-#if !(NOJOYSTICK)
+#if !(NOJOYSTICK) && !defined(__3DS__)
 	// Init joystick subsystem
 	{
 		SDL_Init(SDL_INIT_JOYSTICK);
@@ -214,11 +228,13 @@ static void Shutdown()
 {
 	Pomme::Shutdown();
 
+#ifndef __3DS__
 	if (gSDLWindow)
 	{
 		SDL_DestroyWindow(gSDLWindow);
 		gSDLWindow = nullptr;
 	}
+#endif
 
 	SDL_Quit();
 }
@@ -259,16 +275,22 @@ int main(int argc, char** argv)
 	}
 #endif
 
+#ifndef __3DS__
 	// Whether we failed or succeeded, always restore the user's mouse acceleration before exiting.
 	// (NOTE: in debug builds, we might not get here because we don't catch what GameMain throws.)
 	SetMacLinearMouse(0);
+#endif
 
 	Shutdown();
 
 	if (showFinalErrorMessage)
 	{
+#ifndef __3DS__
 		std::cerr << "Uncaught exception: " << finalErrorMessage << "\n";
 		SDL_ShowSimpleMessageBox(0, "Bugdom", finalErrorMessage.c_str(), nullptr);
+#else
+		std::cerr << "Uncaught exception: " << finalErrorMessage << std::endl;
+#endif
 	}
 
 	return returnCode;

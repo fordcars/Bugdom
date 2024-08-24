@@ -585,7 +585,12 @@ void DeleteObject(ObjNode	*theNode)
 		// If the node has ownership of this mesh's OpenGL texture name, delete it
 		if (theNode->MeshList[i]->glTextureName && theNode->OwnsMeshTexture[i])
 		{
+#ifdef __3DS__
+			GLuint texName = theNode->MeshList[i]->glTextureName;
+			glDeleteTextures(1, &texName);
+#else
 			glDeleteTextures(1, &theNode->MeshList[i]->glTextureName);
+#endif
 			theNode->MeshList[i]->glTextureName = 0;
 		}
 

@@ -148,7 +148,11 @@ KeyBinding gKeyBindings[kKey_MAX] =
 
 static Boolean WeAreFrontProcess(void)
 {
+#ifdef __3DS__
+	return true;
+#else
 	return 0 != (SDL_GetWindowFlags(gSDLWindow) & SDL_WINDOW_INPUT_FOCUS);
+#endif
 }
 
 static inline void UpdateKeyState(KeyState* state, bool downNow)
@@ -577,11 +581,13 @@ SDL_GameController* TryOpenController(bool showMessage)
 					 "The game does not support your controller yet (\"%s\").\n\n"
 					 "You can play with the keyboard and mouse instead. Sorry!",
 					 SDL_JoystickNameForIndex(0));
+#ifndef __3DS__
 			SDL_ShowSimpleMessageBox(
 					SDL_MESSAGEBOX_WARNING,
 					"Controller not supported",
 					messageBuf,
 					gSDLWindow);
+#endif
 		}
 		return NULL;
 	}
@@ -624,12 +630,16 @@ TQ3Point2D GetMousePosition(void)
 {
 	int windowX = 0;
 	int windowY = 0;
+#ifndef __3DS__
 	SDL_GetMouseState(&windowX, &windowY);
+#endif
 
 	// On macOS, the mouse position is relative to the window's "point size" on Retina screens.
 	int windowW = 1;
 	int windowH = 1;
+#ifndef __3DS__
 	SDL_GetWindowSize(gSDLWindow, &windowW, &windowH);
+#endif
 	float dpiScaleX = (float) gWindowWidth / (float) windowW;		// gWindowWidth is in actual pixels
 	float dpiScaleY = (float) gWindowHeight / (float) windowH;		// gWindowHeight is in actual pixels
 
@@ -685,7 +695,9 @@ bool MoveAnalogCursor(int* outMouseX, int* outMouseY)
 		if (gAnalogCursor.pos.x > gWindowWidth-1) gAnalogCursor.pos.x = gWindowWidth-1;
 		if (gAnalogCursor.pos.y > gWindowHeight-1) gAnalogCursor.pos.y = gWindowHeight-1;
 
+#ifndef __3DS__
 		SDL_WarpMouseInWindow(gSDLWindow, (int) gAnalogCursor.pos.x, (int) gAnalogCursor.pos.y);
+#endif
 	}
 
 	if (outMouseX)
@@ -709,7 +721,9 @@ void WarpMouseToCenter(void)
 	// Mouse cursor coords must be given in the "point" coordinate system on macOS.
 	int windowPointWidth = 1;
 	int windowPointHeight = 1;
+#ifndef __3DS__
 	SDL_GetWindowSize(gSDLWindow, &windowPointWidth, &windowPointHeight);		// get window size in "device points"
 
 	SDL_WarpMouseInWindow(gSDLWindow, windowPointWidth/2, windowPointHeight/2);
+#endif
 }
