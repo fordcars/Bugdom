@@ -128,7 +128,7 @@ const RenderModifiers kDefaultRenderMods_Pillarbox =
 /*    VARIABLES             */
 /****************************/
 
-#ifdef __3DS__
+#ifndef __3DS__
 static SDL_GLContext gGLContext = NULL;
 #endif
 
