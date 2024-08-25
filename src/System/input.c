@@ -241,8 +241,10 @@ void UpdateInput(void)
 {
 #ifdef __3DS__
 	ScanInput3ds();
+	
+	// Handle touch screen
+	UpdateKeyState(&gMouseButtonState[SDL_BUTTON_LEFT], GetHeldButtons3ds() & POMME_3DS_KEY_TOUCH);
 #else
-
 	SDL_PumpEvents();
 
 		/* CHECK FOR NEW MOUSE BUTTONS */
@@ -692,14 +694,21 @@ TQ3Point2D GetMousePosition(void)
 {
 	int windowX = 0;
 	int windowY = 0;
-#ifndef __3DS__
+#ifdef __3DS__
+	windowX = Get3dsTouchX();
+	windowY = Get3dsTouchY();
+#else
 	SDL_GetMouseState(&windowX, &windowY);
 #endif
 
 	// On macOS, the mouse position is relative to the window's "point size" on Retina screens.
 	int windowW = 1;
 	int windowH = 1;
-#ifndef __3DS__
+#ifdef __3DS__
+	// Will always be bottom screen
+	windowW = 320;
+	windowH = 240;
+#else
 	SDL_GetWindowSize(gSDLWindow, &windowW, &windowH);
 #endif
 	float dpiScaleX = (float) gWindowWidth / (float) windowW;		// gWindowWidth is in actual pixels
