@@ -319,7 +319,13 @@ static void PlayGame(void)
 			
 		/* DO END-LEVEL BONUS SCREEN */
 			
-		DoBonusScreen();
+#ifdef __3DS__
+	SelectTopScreen3ds(false);
+	DoBonusScreen();
+	SelectTopScreen3ds(true);
+#else
+	DoBonusScreen();
+#endif
 	}
 	
 			/*************/
