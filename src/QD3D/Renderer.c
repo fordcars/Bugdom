@@ -1002,7 +1002,10 @@ static void PrepareOpaqueShading(const MeshQueueEntry* entry)
 	// Per-vertex colors
 	if (mesh->hasVertexColors)
 	{
+#ifndef __3DS__
+		// Related to issue with picaGL glDrawRangeElements (arrays.c). TODO: Fix!
 		EnableClientState(GL_COLOR_ARRAY);
+#endif
 
 		glColorPointer(4, GL_FLOAT, 0, mesh->vertexColors);
 	}
@@ -1038,7 +1041,10 @@ static void PrepareAlphaShading(const MeshQueueEntry* entry)
 	// Per-vertex colors
 	if (mesh->hasVertexColors)
 	{
+#ifndef __3DS__
+		// Related to issue with picaGL glDrawRangeElements (arrays.c). TODO: Fix!
 		EnableClientState(GL_COLOR_ARRAY);
+#endif
 
 		// OpenGL ignores diffuse color (used for transparency) if we also send
 		// per-vertex colors. So, apply transparency to the per-vertex color array.

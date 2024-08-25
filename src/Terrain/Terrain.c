@@ -42,7 +42,11 @@ static void BuildSuperTileLOD(SuperTileMemoryType *superTilePtr, short lod);
 #define	OUTER_SIZE		0.6f		// size of border out of add window for delete window (can be float)
 
 #define TILE_TEXTURE_INTERNAL_FORMAT	GL_RGB
-#define TILE_TEXTURE_FORMAT				GL_BGRA_EXT
+#ifdef __3DS__
+	#define TILE_TEXTURE_FORMAT				GL_BGRA
+#else
+	#define TILE_TEXTURE_FORMAT				GL_BGRA_EXT
+#endif
 #define TILE_TEXTURE_TYPE				GL_UNSIGNED_SHORT_1_5_5_5_REV
 
 
