@@ -1115,6 +1115,11 @@ TQ3Vector2D FitRectKeepAR(
 
 void Render_Enter2D_Full640x480(void)
 {
+#ifdef __3DS__
+	// Honestly, I don't understand why this isn't needed by ALL platforms, not just 3DS.
+	DisableState(GL_DEPTH_TEST);
+#endif
+
 	if (gGamePrefs.force4x3AspectRatio)
 	{
 		TQ3Vector2D fitted = FitRectKeepAR(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT, gWindowWidth, gWindowHeight);
@@ -1140,6 +1145,10 @@ void Render_Enter2D_Full640x480(void)
 
 void Render_Enter2D_NormalizedCoordinates(float aspect)
 {
+#ifdef __3DS__
+	DisableState(GL_DEPTH_TEST);
+#endif
+
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
@@ -1151,6 +1160,10 @@ void Render_Enter2D_NormalizedCoordinates(float aspect)
 
 void Render_Enter2D_NativeResolution(void)
 {
+#ifdef __3DS__
+	DisableState(GL_DEPTH_TEST);
+#endif
+
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
@@ -1166,6 +1179,10 @@ void Render_Exit2D(void)
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+
+#ifdef __3DS__
+	EnableState(GL_DEPTH_TEST);
+#endif
 }
 
 #pragma mark -
