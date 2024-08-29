@@ -105,7 +105,11 @@ struct SuperTileMemoryType
 	TQ3Point3D			coord[MAX_LAYERS];						// world coords of supertile center (y for floor & ceiling)
 	long				left,back;								// integer coords of back/left corner
 	uint32_t			glTextureName[MAX_LAYERS][MAX_LODS];	// OpenGL texture name for floor & ceiling at all LODs
+#ifdef __3DS__
+	uint32_t*			textureData[MAX_LAYERS][MAX_LODS];		// pixel data for floor & ceiling at all LODs
+#else
 	uint16_t*			textureData[MAX_LAYERS][MAX_LODS];		// pixel data for floor & ceiling at all LODs
+#endif
 	TQ3TriMeshData*		triMeshDataPtrs[MAX_LAYERS];			// trimesh's data for the supertile (floor & ceiling)
 	float				radius[MAX_LAYERS];						// radius of this supertile (floor & ceiling)
 };

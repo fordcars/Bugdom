@@ -15,6 +15,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef __3DS__
+#include <GL/picaGL.h>
+#endif
+
 
 /****************************/
 /*    PROTOTYPES            */
@@ -839,7 +843,23 @@ short					**xlateTableHand,*xlateTbl;
 	{
 		DetachResource(hand);							// lets keep this data around
 		UNPACK_BE_SCALARS_AUTOSIZEHANDLE(u_short, hand);
-		gTileDataHandle = (u_short **)hand;
+
+#ifdef __3DS__
+	gOrigTileDataHandle = (u_short **)hand;
+
+	// Convert texture data for 3DS
+	GLint internalFormat = GL_RGB;
+	GLsizei width = g3DTileSize;
+	GLsizei height = g3DTileSize;
+	GLenum format = GL_BGRA_EXT;
+	GLenum type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+	GLvoid* converted = pglNormalizeTextureFormat(*gOrigTileDataHandle,
+		&internalFormat, &width, &height, &format, &type, false);
+
+	gTileDataHandle = converted;
+#else
+	gTileDataHandle = (u_short **)hand;
+#endif
 	}
 
 

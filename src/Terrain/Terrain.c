@@ -26,10 +26,18 @@ static inline void ReleaseSuperTileObject(int32_t superTileNum);
 static void CalcNewItemDeleteWindow(void);
 static short	BuildTerrainSuperTile(long	startCol, long startRow);
 static Boolean IsSuperTileVisible(int32_t superTileNum, Byte layer);
+#ifdef __3DS__
+static void DrawTileIntoMipmap(uint16_t tile, int row, int col, uint32_t* buffer);
+#else
 static void DrawTileIntoMipmap(uint16_t tile, int row, int col, uint16_t* buffer);
+#endif
 static void	ShrinkSuperTileTextureMap(const u_short *srcPtr,u_short *destPtr);
 //static void	ShrinkSuperTileTextureMapTo64(u_short *srcPtr,u_short *destPtr);
+#ifdef __3DS__
+static void ShrinkHalf(const uint32_t* input, uint32_t* output, int outputSize);
+#else
 static void ShrinkHalf(const uint16_t* input, uint16_t* output, int outputSize);
+#endif
 static inline void ReleaseAllSuperTiles(void);
 static void BuildSuperTileLOD(SuperTileMemoryType *superTilePtr, short lod);
 
@@ -41,9 +49,16 @@ static void BuildSuperTileLOD(SuperTileMemoryType *superTilePtr, short lod);
 #define	ITEM_WINDOW		1			// # supertiles for item add window (must be integer)
 #define	OUTER_SIZE		0.6f		// size of border out of add window for delete window (can be float)
 
-#define TILE_TEXTURE_INTERNAL_FORMAT	GL_RGB
-#define TILE_TEXTURE_FORMAT				GL_BGRA_EXT
-#define TILE_TEXTURE_TYPE				GL_UNSIGNED_SHORT_1_5_5_5_REV
+#ifdef __3DS__
+	// We will be pre-converting the textures for efficiency
+	#define TILE_TEXTURE_INTERNAL_FORMAT	GL_RGBA
+	#define TILE_TEXTURE_FORMAT				GL_RGBA
+	#define TILE_TEXTURE_TYPE				GL_UNSIGNED_BYTE
+#else
+	#define TILE_TEXTURE_INTERNAL_FORMAT	GL_RGB
+	#define TILE_TEXTURE_FORMAT				GL_BGRA_EXT
+	#define TILE_TEXTURE_TYPE				GL_UNSIGNED_SHORT_1_5_5_5_REV
+#endif
 
 
 /**********************/
@@ -60,7 +75,12 @@ static int		gNumLODs = 0;
 
 static u_char	gHiccupEliminator = 0;
 
+#ifdef __3DS__
+uint32_t	*gTileDataHandle;
+u_short	**gOrigTileDataHandle;
+#else
 u_short	**gTileDataHandle;
+#endif
 
 u_short	**gFloorMap = nil;								// 2 dimensional array of u_shorts (allocated below)
 u_short	**gCeilingMap = nil;
@@ -138,7 +158,11 @@ static const	Byte			gTileTriangleWinding[2][3] =
 
 
 TQ3Point3D		gWorkGrid[SUPERTILE_SIZE+1][SUPERTILE_SIZE+1];
+#ifdef __3DS__
+uint32_t		*gTempTextureBuffer = nil;
+#else
 uint16_t		*gTempTextureBuffer = nil;
+#endif
 
 TQ3Vector3D		gRecentTerrainNormal[2];							// from _Planar
 
@@ -161,7 +185,12 @@ void InitTerrainManager(void)
 			
 	if (gTempTextureBuffer == nil)
 	{
+#ifdef __3DS__
+		gTempTextureBuffer = (uint32_t*) AllocPtr(SUPERTILE_TEXSIZE_MAX * SUPERTILE_TEXSIZE_MAX * sizeof(uint32_t));
+
+#else
 		gTempTextureBuffer = (uint16_t*) AllocPtr(SUPERTILE_TEXSIZE_MAX * SUPERTILE_TEXSIZE_MAX * sizeof(uint16_t));
+#endif
 		GAME_ASSERT(gTempTextureBuffer);
 	}
 
@@ -217,7 +246,16 @@ int	i;
 
 	if (gTileDataHandle)
 	{
+#ifdef __3DS__
+		free(gTileDataHandle);
+		if (gOrigTileDataHandle)
+		{
+			DisposeHandle((Handle)gOrigTileDataHandle);
+			gOrigTileDataHandle = nil;
+		}
+#else
 		DisposeHandle((Handle)gTileDataHandle);
+#endif
 		gTileDataHandle = nil;
 	}
 
@@ -450,7 +488,11 @@ retryParseLODPref:
 
 						/* MAKE BLANK TEXTURE */
 
+#ifdef __3DS__
+				superTile->textureData[layer][lod] = (uint32_t*) NewPtrClear(size * size * sizeof(uint32_t));	// alloc memory for texture
+#else
 				superTile->textureData[layer][lod] = (uint16_t*) NewPtrClear(size * size * sizeof(uint16_t));	// alloc memory for texture
+#endif
 				GAME_ASSERT(superTile->textureData[layer][lod]);
 
 				superTile->glTextureName[layer][lod] = Render_LoadTexture(		// create texture from buffer
@@ -740,7 +782,11 @@ static TQ3Vector3D	faceNormal[NUM_TRIS_IN_SUPERTILE];
 	
 					/* UPDATE TRIMESH DATA WITH NEW INFO */
 #if _DEBUG
+#ifdef __3DS__
+		memset(gTempTextureBuffer, 0xFF, SUPERTILE_TEXSIZE_MAX * SUPERTILE_TEXSIZE_MAX * sizeof(uint32_t));
+#else
 		memset(gTempTextureBuffer, 0xFF, SUPERTILE_TEXSIZE_MAX * SUPERTILE_TEXSIZE_MAX * sizeof(uint16_t));
+#endif
 #endif
 
 		i = 0;
@@ -983,7 +1029,10 @@ static TQ3Vector3D	faceNormal[NUM_TRIS_IN_SUPERTILE];
 			}
 			else
 			{
+#ifndef __3DS__
+				// This is not even used for now anyway
 				ShrinkSuperTileTextureMap(gTempTextureBuffer, superTilePtr->textureData[layer][0]);				// shrink to 128x128
+#endif
 			}
 
 			superTilePtr->hasLOD[0] = true;
@@ -1063,8 +1112,13 @@ static void BuildSuperTileLOD(SuperTileMemoryType *superTilePtr, short lod)
 
 			/* GET POINTERS TO TEXTURE BUFFERS */
 
+#ifdef __3DS__
+		uint32_t*	baseBuffer	= superTilePtr->textureData[j][lod-1];	// build new LOD from inferior LOD
+		uint32_t*	newBuffer	= superTilePtr->textureData[j][lod];
+#else
 		uint16_t*	baseBuffer	= superTilePtr->textureData[j][lod-1];	// build new LOD from inferior LOD
 		uint16_t*	newBuffer	= superTilePtr->textureData[j][lod];
+#endif
 
 			/* SHRINK IMAGE */
 
@@ -1090,11 +1144,19 @@ static void BuildSuperTileLOD(SuperTileMemoryType *superTilePtr, short lod)
 
 /********************* DRAW TILE INTO MIPMAP *************************/
 
+#ifdef __3DS__
+static void DrawTileIntoMipmap(uint16_t tile, int row, int col, uint32_t *buffer)
+#else
 static void DrawTileIntoMipmap(uint16_t tile, int row, int col, uint16_t *buffer)
+#endif
 {
 uint16_t texMapNum;
 uint16_t flipRotBits;
+#ifdef __3DS__
+const uint32_t* tileData;
+#else
 const uint16_t* tileData;
+#endif
 
 const int tileSize = OREOMAP_TILE_SIZE;
 
@@ -1121,7 +1183,12 @@ const int bufWidth
 	const int startY = row * tileSize;
 
 	buffer += (startY * bufWidth) + startX;						// get dest
+#ifdef __3DS__
+	tileData = gTileDataHandle + (texMapNum * tileSize*tileSize);	// get src
+#else
 	tileData = (*gTileDataHandle) + (texMapNum * tileSize*tileSize);	// get src
+#endif
+
 
 
 	switch(flipRotBits)         								// set uv's based on flip & rot bits
@@ -1133,7 +1200,11 @@ const int bufWidth
 		case	TILE_FLIPXY_MASK | TILE_ROT2:
 				for (int y = 0; y < tileSize; y++)
 				{
+#ifdef __3DS__
+					memcpy(buffer, tileData, tileSize * sizeof(uint32_t));
+#else
 					memcpy(buffer, tileData, tileSize * sizeof(uint16_t));
+#endif
 
 					buffer += bufWidth;						// next line in dest
 					tileData += tileSize;					// next line in src
@@ -1163,7 +1234,11 @@ const int bufWidth
 				tileData += tileSize*(tileSize-1);
 				for (int y = 0; y < tileSize; y++)
 				{
+#ifdef __3DS__
+					memcpy(buffer, tileData, tileSize * sizeof(uint32_t));
+#else
 					memcpy(buffer, tileData, tileSize * sizeof(uint16_t));
+#endif
 
 					buffer += bufWidth;						// next line in dest
 					tileData -= tileSize;					// next line in src
@@ -1320,6 +1395,58 @@ static void	ShrinkSuperTileTextureMapTo64(u_short *srcPtr, u_short *dstPtr)
 
 /************ SHRINK SQUARE TEXTURE TO HALF SIZE ******************/
 
+#ifdef __3DS__
+// This is untested whoops
+static void ShrinkHalf(const uint32_t* input, uint32_t* output, int outputSize)
+{
+	int inputWidth = outputSize * 2;
+	const uint32_t* nextLine = input + inputWidth;
+
+	for (int y = 0; y < outputSize; y++)
+	{
+		for (int x = 0; x < outputSize; x++)
+		{
+			uint32_t	r,g,b,a;
+			uint32_t	pixel;
+
+			pixel = *input++;							// get a pixel
+			r = pixel >> 24;
+			g = pixel >> 16 & 0xff;
+			b = pixel >> 8 & 0xff;
+			a = pixel & 0xff;
+
+			pixel = *input++;							// get next pixel
+			r += pixel >> 24;
+			g += pixel >> 16 & 0xff;
+			b += pixel >> 8 & 0xff;
+			a += pixel & 0xff;
+
+
+			pixel = *nextLine++;						// get a pixel from next line
+			r += pixel >> 24;
+			g += pixel >> 16 & 0xff;
+			b += pixel >> 8 & 0xff;
+			a += pixel & 0xff;
+
+			pixel = *nextLine++;						// get next pixel from next line
+			r += pixel >> 24;
+			g += pixel >> 16 & 0xff;
+			b += pixel >> 8 & 0xff;
+			a += pixel & 0xff;
+
+			r >>= 2;									// calc average
+			g >>= 2;
+			b >>= 2;
+			a >>= 2;
+
+			*output++ = (r << 24) | (g << 16)
+						| (b << 8) | a;					// save new pixel
+		}
+		input += inputWidth;							// skip a line
+		nextLine += inputWidth;
+	}
+}
+#else
 static void ShrinkHalf(const uint16_t* input, uint16_t* output, int outputSize)
 {
 	int inputWidth = outputSize * 2;
@@ -1363,6 +1490,7 @@ static void ShrinkHalf(const uint16_t* input, uint16_t* output, int outputSize)
 		nextLine += inputWidth;
 	}
 }
+#endif
 
 
 

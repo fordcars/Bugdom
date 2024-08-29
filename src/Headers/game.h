@@ -214,7 +214,12 @@ extern	u_long						gAutoFadeStatusBits;
 extern	u_long						gInfobarUpdateBits;
 extern	u_short						**gCeilingMap;
 extern	u_short						**gFloorMap;
+#ifdef __3DS__
+extern	uint32_t					*gTileDataHandle;
+extern	u_short						**gOrigTileDataHandle;
+#else
 extern	u_short						**gTileDataHandle;
+#endif
 extern	u_short						**gVertexColors[2];
 extern	u_short						gAreaNum;
 extern	u_short						gLevelType;
