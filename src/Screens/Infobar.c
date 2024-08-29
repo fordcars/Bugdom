@@ -1273,6 +1273,20 @@ void SubmitInfobarOverlay(void)
 	// If the screen port has dirty pixels ("damaged"), update the texture
 	if (gInfobarTextureIsDirty)
 	{
+#ifdef __3DS__
+		// Because picaGL lacks glPixelStorei, the last argument of Render_UpdateTexture
+		// must be 0. A workaround is to update the entire texture instead of just a portion of it.
+		Render_UpdateTexture(
+				gInfobarTextureName,
+				0,
+				0,
+				INFOBAR_TEXTURE_WIDTH,
+				INFOBAR_TEXTURE_HEIGHT,
+				GL_RGBA,
+				GL_UNSIGNED_BYTE,
+				gInfobarTexture,
+				0);
+#else
 		Render_UpdateTexture(
 				gInfobarTextureName,
 				gInfobarTextureDirtyRect.left,
@@ -1283,6 +1297,7 @@ void SubmitInfobarOverlay(void)
 				GL_UNSIGNED_BYTE,
 				GetInfobarTextureOffset(gInfobarTextureDirtyRect.left, gInfobarTextureDirtyRect.top),
 				INFOBAR_TEXTURE_WIDTH);
+#endif
 
 		// Clear damage
 		gInfobarTextureIsDirty = false;
