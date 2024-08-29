@@ -244,7 +244,7 @@ void InitPrefs(void)
 	gGamePrefs.fullscreen			= true;
 	gGamePrefs.lowDetail			= false;
 	gGamePrefs.mouseSensitivityLevel= DEFAULT_MOUSE_SENSITIVITY_LEVEL;
-	gGamePrefs.showBottomBar		= true;
+	gGamePrefs.showBottomBar		= false;
 	gGamePrefs.force4x3AspectRatio	= false;
 	gGamePrefs.antialiasingLevel	= 0;
 	gGamePrefs.dragonflyControl		= 0;

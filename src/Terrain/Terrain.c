@@ -28,10 +28,11 @@ static short	BuildTerrainSuperTile(long	startCol, long startRow);
 static Boolean IsSuperTileVisible(int32_t superTileNum, Byte layer);
 #ifdef __3DS__
 static void DrawTileIntoMipmap(uint16_t tile, int row, int col, uint32_t* buffer);
+static void	ShrinkSuperTileTextureMap(const uint32_t *srcPtr, uint32_t *destPtr);
 #else
 static void DrawTileIntoMipmap(uint16_t tile, int row, int col, uint16_t* buffer);
-#endif
 static void	ShrinkSuperTileTextureMap(const u_short *srcPtr,u_short *destPtr);
+#endif
 //static void	ShrinkSuperTileTextureMapTo64(u_short *srcPtr,u_short *destPtr);
 #ifdef __3DS__
 static void ShrinkHalf(const uint32_t* input, uint32_t* output, int outputSize);
@@ -370,9 +371,14 @@ static	TQ3Param2D				uvs[NUM_VERTICES_IN_SUPERTILE];
 			/* PREPARE TEXTURE DETAIL CONSTANTS ACCORDING TO USER PREFS */
 
 	// Fill out gNumLODs and textureSize[] according to user pref for texture detail (source port addition)
+#ifdef __3DS__
+	// Better to leave this at WORST on 3DS, no one will notice...
+	gTerrainTextureDetail = SUPERTILE_DETAIL_WORST;
+#else
 	gTerrainTextureDetail = gGamePrefs.lowDetail
 		? SUPERTILE_DETAIL_WORST
 		: SUPERTILE_DETAIL_BEST;
+#endif
 
 retryParseLODPref:
 	switch (gTerrainTextureDetail)
@@ -1029,10 +1035,7 @@ static TQ3Vector3D	faceNormal[NUM_TRIS_IN_SUPERTILE];
 			}
 			else
 			{
-#ifndef __3DS__
-				// This is not even used for now anyway
 				ShrinkSuperTileTextureMap(gTempTextureBuffer, superTilePtr->textureData[layer][0]);				// shrink to 128x128
-#endif
 			}
 
 			superTilePtr->hasLOD[0] = true;
@@ -1332,6 +1335,37 @@ const int bufWidth
 // Shrinks a 160x160 src texture to a 128x128 dest texture
 //
 
+#ifdef __3DS__
+static void	ShrinkSuperTileTextureMap(const uint32_t *srcPtr, uint32_t *dstPtr)
+{
+	_Static_assert(SUPERTILE_TEXSIZE_SHRUNK == 128, "rewrite this for new supertile texmap size!");
+	_Static_assert(SUPERTILE_SIZE * OREOMAP_TILE_SIZE == 160, "rewrite this for new oreomap tile size!");
+
+	for (int y = 0; y < 128; y++)
+	{
+		for (int x = 0; x < 128; x += 4)					// shrink a block of 5 pixels from src into 4 pixels in dst
+		{
+			uint32_t c1 = srcPtr[3];						// get colors to average
+			uint32_t c2 = srcPtr[4];
+			uint32_t r = (((c1 >> 24) & 0xff) + ((c2 >> 24) & 0xff)) >> 1;
+			uint32_t g = (((c1 >> 16) & 0xff) + ((c2 >> 16) & 0xff)) >> 1;
+			uint32_t b = (((c1 >> 8)  & 0xff) + ((c2 >> 8)  & 0xff)) >> 1;
+			uint32_t a = ((c1 & 0xff) + (c2 & 0xff)) >> 1;
+
+			dstPtr[0] = srcPtr[0];							// save #0
+			dstPtr[1] = srcPtr[1];							// save #1
+			dstPtr[2] = srcPtr[2];							// save #2
+			dstPtr[3] =  ((r & 0xff) << 24) | ((g & 0xff) << 16) | ((b & 0xff) << 8) | (a & 0xff);
+
+			dstPtr += 4;
+			srcPtr += 5;
+		}
+
+		if (y % 4 == 3)							// skip every 4th line
+			srcPtr +=  SUPERTILE_SIZE * OREOMAP_TILE_SIZE;
+	}
+}
+#else
 static void	ShrinkSuperTileTextureMap(const u_short *srcPtr, u_short *dstPtr)
 {
 	_Static_assert(SUPERTILE_TEXSIZE_SHRUNK == 128, "rewrite this for new supertile texmap size!");
@@ -1360,6 +1394,7 @@ static void	ShrinkSuperTileTextureMap(const u_short *srcPtr, u_short *dstPtr)
 			srcPtr +=  SUPERTILE_SIZE * OREOMAP_TILE_SIZE;
 	}
 }
+#endif
 
 
 #if 0	// Unused in this version of Bugdom
