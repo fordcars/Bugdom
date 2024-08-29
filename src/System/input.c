@@ -187,8 +187,8 @@ TQ3Vector2D GetThumbStickVector(bool rightStick)
 	return (TQ3Vector2D) {0,0};
 #else
 #ifdef __3DS__
-	float dx = Get3dsCPadX() / 155.0f;
-	float dy = Get3dsCPadY() / 155.0f;
+	float dx = !rightStick ? Get3dsCPadX() : 0;
+	float dy = !rightStick ? -Get3dsCPadY() : 0;
 #else
 	if (!gSDLController)
 	{
@@ -353,13 +353,13 @@ void UpdateKeyMap(void)
 		{
 			case kKey_Pause:          downNow = downButtons & POMME_3DS_KEY_START;  break;
 
-			case kKey_SwivelCameraLeft:  downNow = downButtons & POMME_3DS_KEY_L;   break;
-			case kKey_SwivelCameraRight: downNow = downButtons & POMME_3DS_KEY_R;   break;
+			case kKey_SwivelCameraLeft:  downNow = downButtons & POMME_3DS_KEY_R;   break;
+			case kKey_SwivelCameraRight: downNow = downButtons & POMME_3DS_KEY_L;   break;
 
-			case kKey_MorphPlayer:    downNow = downButtons & POMME_3DS_KEY_Y;      break;
+			case kKey_MorphPlayer:    downNow = downButtons & POMME_3DS_KEY_B;      break;
 			case kKey_BuddyAttack:    downNow = downButtons & POMME_3DS_KEY_X;      break;
 			case kKey_Jump:           downNow = downButtons & POMME_3DS_KEY_A;      break;
-			case kKey_Kick:           downNow = downButtons & POMME_3DS_KEY_B;      break;
+			case kKey_Kick:           downNow = downButtons & POMME_3DS_KEY_Y;      break;
 
 			case kKey_Forward:        downNow = downButtons & POMME_3DS_KEY_DUP;    break;
 			case kKey_Backward:       downNow = downButtons & POMME_3DS_KEY_DDOWN;  break;
