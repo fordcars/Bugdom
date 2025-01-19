@@ -45,6 +45,11 @@ enum
 
 	SUPERTILE_DETAIL_WORST = SUPERTILE_DETAIL_PROGRESSIVE,
 
+#ifdef __3DS__
+	// On 3DS, 1 LOD 64x64
+	SUPERTILE_DETAIL_3DS = SUPERTILE_DETAIL_SHRUNK,
+#endif
+
 #if OSXPPC
 	// No NPOT texture support on most PowerPC Macs (at least not on
 	// my Mac Mini G4, which apparently only supports OpenGL 1.3)
@@ -63,7 +68,11 @@ enum
 #define	NUM_TRIS_IN_SUPERTILE	(SUPERTILE_SIZE * SUPERTILE_SIZE * 2)			// 2 triangles per tile
 #define	NUM_VERTICES_IN_SUPERTILE	((SUPERTILE_SIZE+1)*(SUPERTILE_SIZE+1))		// # vertices in a supertile
 
-#define	SUPERTILE_TEXSIZE_SHRUNK		128
+#ifdef __3DS__
+	#define	SUPERTILE_TEXSIZE_SHRUNK		64
+#else
+	#define	SUPERTILE_TEXSIZE_SHRUNK		128
+#endif
 #define	SUPERTILE_TEXSIZE_LOSSLESS		(OREOMAP_TILE_SIZE * SUPERTILE_SIZE)
 #define	SUPERTILE_TEXSIZE_SEAMLESS		(OREOMAP_TILE_SIZE * (SUPERTILE_SIZE + 2))
 #define	SUPERTILE_TEXSIZE_MAX			SUPERTILE_TEXSIZE_SEAMLESS
