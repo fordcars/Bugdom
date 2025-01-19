@@ -146,7 +146,17 @@ static const float	gLevelFogEnd[NUM_LEVEL_TYPES] =
 	1,						// anthill
 };
 
-
+#ifdef __3DS__
+static const float	gLevelAutoFadeStart[NUM_LEVEL_TYPES] =
+{
+	YON_DISTANCE-300,		// garden
+	0,						// boat
+	0,						// dragonfly
+	0,						// hive
+	YON_DISTANCE-250,		// night
+	0,						// anthill
+};
+#else
 static const float	gLevelAutoFadeStart[NUM_LEVEL_TYPES] =
 {
 	YON_DISTANCE+400,		// garden
@@ -156,6 +166,7 @@ static const float	gLevelAutoFadeStart[NUM_LEVEL_TYPES] =
 	YON_DISTANCE-250,		// night
 	0,						// anthill
 };
+#endif
 
 
 static const bool	gLevelHasLensFlare[NUM_LEVEL_TYPES] =
@@ -484,8 +495,13 @@ QD3DSetupInputType	viewDef;
 		
 	if (gSuperTileActiveRange == 5)								// set yon clipping value
 	{
+#ifdef __3DS__
+		gCurrentYon = YON_DISTANCE + 500;
+		gCycScale = 45;
+#else
 		gCurrentYon = YON_DISTANCE + 1700;
 		gCycScale = 81;
+#endif
 	}
 	else
 	{

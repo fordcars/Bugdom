@@ -63,7 +63,9 @@ static MeshQueueEntry*		gMeshQueuePtrs[MESHQUEUE_MAX_SIZE];
 static int					gMeshQueueSize = 0;
 static bool					gFrameStarted = false;
 
+#ifndef __3DS__
 static float				gBackupVertexColors[4*65536];
+#endif
 
 static int DrawOrderComparator(void const* a_void, void const* b_void);
 
@@ -1003,7 +1005,7 @@ static void PrepareOpaqueShading(const MeshQueueEntry* entry)
 	if (mesh->hasVertexColors)
 	{
 #ifndef __3DS__
-		// Related to issue with picaGL glDrawRangeElements (arrays.c). TODO: Fix!
+		// Related to issue with picaGL glDrawRangeElements (arrays.c)
 		EnableClientState(GL_COLOR_ARRAY);
 #endif
 
@@ -1038,13 +1040,12 @@ static void PrepareAlphaShading(const MeshQueueEntry* entry)
 		gState.blendFuncIsAdditive = wantAdditive;
 	}
 
+	// Enabling GL_COLOR_ARRAY on 3DS causes issues related picaGL's glDrawRangeElements (arrays.c)
+#ifndef __3DS__
 	// Per-vertex colors
 	if (mesh->hasVertexColors)
 	{
-#ifndef __3DS__
-		// Related to issue with picaGL glDrawRangeElements (arrays.c). TODO: Fix!
 		EnableClientState(GL_COLOR_ARRAY);
-#endif
 
 		// OpenGL ignores diffuse color (used for transparency) if we also send
 		// per-vertex colors. So, apply transparency to the per-vertex color array.
@@ -1063,14 +1064,16 @@ static void PrepareAlphaShading(const MeshQueueEntry* entry)
 	else
 	{
 		DisableClientState(GL_COLOR_ARRAY);
-
+#endif
 		// Apply diffuse color for the entire mesh
 		glColor4f(
 				mesh->diffuseColor.r * entry->mods->diffuseColor.r,
 				mesh->diffuseColor.g * entry->mods->diffuseColor.g,
 				mesh->diffuseColor.b * entry->mods->diffuseColor.b,
 				mesh->diffuseColor.a * entry->mods->diffuseColor.a * entry->mods->autoFadeFactor);
+#ifndef __3DS__
 	}
+#endif
 }
 
 void Render_ResetColor(void)
