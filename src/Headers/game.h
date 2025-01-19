@@ -216,7 +216,6 @@ extern	u_short						**gCeilingMap;
 extern	u_short						**gFloorMap;
 #ifdef __3DS__
 extern	uint32_t					*gTileDataHandle;
-extern	u_short						**gOrigTileDataHandle;
 #else
 extern	u_short						**gTileDataHandle;
 #endif

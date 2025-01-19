@@ -851,9 +851,10 @@ u_short					**origTileDataHandle;
 		origTileDataHandle = (u_short **)hand;
 
 		// Convert texture data for 3DS
+		// Note the format is just unstructured pixel data.
 		GLint internalFormat = GL_RGB;
-		GLsizei width = g3DTileSize;
-		GLsizei height = g3DTileSize;
+		GLsizei width = gNumTerrainTextureTiles * OREOMAP_TILE_SIZE*OREOMAP_TILE_SIZE;
+		GLsizei height = 1;
 		GLenum format = GL_BGRA_EXT;
 		GLenum type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
 		gTileDataHandle = pglNormalizeTextureFormat(*origTileDataHandle,
