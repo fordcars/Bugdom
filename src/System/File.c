@@ -803,6 +803,9 @@ PlayfieldHeaderType		**header;
 long					i,row,col,numLayers;
 float					yScale;
 short					**xlateTableHand,*xlateTbl;
+#ifdef __3DS__
+u_short					**origTileDataHandle;
+#endif
 
 	if (gDoCeiling)									// see if need to read in ceiling data
 		numLayers = 2;
@@ -845,20 +848,22 @@ short					**xlateTableHand,*xlateTbl;
 		UNPACK_BE_SCALARS_AUTOSIZEHANDLE(u_short, hand);
 
 #ifdef __3DS__
-	gOrigTileDataHandle = (u_short **)hand;
+		origTileDataHandle = (u_short **)hand;
 
-	// Convert texture data for 3DS
-	GLint internalFormat = GL_RGB;
-	GLsizei width = g3DTileSize;
-	GLsizei height = g3DTileSize;
-	GLenum format = GL_BGRA_EXT;
-	GLenum type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
-	GLvoid* converted = pglNormalizeTextureFormat(*gOrigTileDataHandle,
-		&internalFormat, &width, &height, &format, &type, false);
+		// Convert texture data for 3DS
+		GLint internalFormat = GL_RGB;
+		GLsizei width = g3DTileSize;
+		GLsizei height = g3DTileSize;
+		GLenum format = GL_BGRA_EXT;
+		GLenum type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+		gTileDataHandle = pglNormalizeTextureFormat(*origTileDataHandle,
+			&internalFormat, &width, &height, &format, &type, false);
 
-	gTileDataHandle = converted;
+		// We can already dispose original data
+		DisposeHandle((Handle)origTileDataHandle);
+		origTileDataHandle = nil;
 #else
-	gTileDataHandle = (u_short **)hand;
+		gTileDataHandle = (u_short **)hand;
 #endif
 	}
 

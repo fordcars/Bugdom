@@ -872,7 +872,9 @@ unsigned long	someLong;
 #endif
 
 	CheckDebugShortcutKeysOnBoot();
+#ifndef __3DS__
 	DoPangeaLogo();
+#endif
 
 
 		/* MAIN LOOP */
@@ -880,8 +882,6 @@ unsigned long	someLong;
 	while(true)
 	{
 #ifdef __3DS__
-		SelectTopScreen3ds(true);
-		DoTitleScreen();
 		SelectTopScreen3ds(false);
 #else
 		DoTitleScreen();

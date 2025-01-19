@@ -78,7 +78,6 @@ static u_char	gHiccupEliminator = 0;
 
 #ifdef __3DS__
 uint32_t	*gTileDataHandle;
-u_short	**gOrigTileDataHandle;
 #else
 u_short	**gTileDataHandle;
 #endif
@@ -249,11 +248,6 @@ int	i;
 	{
 #ifdef __3DS__
 		free(gTileDataHandle);
-		if (gOrigTileDataHandle)
-		{
-			DisposeHandle((Handle)gOrigTileDataHandle);
-			gOrigTileDataHandle = nil;
-		}
 #else
 		DisposeHandle((Handle)gTileDataHandle);
 #endif

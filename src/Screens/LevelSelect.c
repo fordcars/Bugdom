@@ -10,6 +10,10 @@
 #include "game.h"
 #include <stdio.h>
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 
 /****************************/
 /*    PROTOTYPES            */
@@ -56,6 +60,9 @@ bool DoLevelSelect(void)
 	/* PROCESS IT */
 	/**************/
 
+#ifdef __3DS__
+	SelectTopScreen3ds(false);
+#endif
 	MakeFadeEvent(true);
 
 	MakeLevelSelectObjects();
@@ -97,8 +104,10 @@ bool DoLevelSelect(void)
 	}
 
 	/* CLEANUP */
-
 	CleanupUIStuff();
+#ifdef __3DS__
+	SelectTopScreen3ds(true);
+#endif
 
 	glDeleteTextures(NUM_LEVELS, levelScreenshots);
 
