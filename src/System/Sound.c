@@ -417,11 +417,6 @@ static	SndCommand 		mySndCmd;
 int		volume;
 OSErr	iErr;
 
-#ifdef __3DS__
-	// Disable songs on 3ds
-	return;
-#endif
-
 	if (songNum == gCurrentSong)					// see if this is already playing
 		return;
 
@@ -439,6 +434,21 @@ OSErr	iErr;
 	const char* path = NULL;
 	switch(songNum)
 	{
+#ifdef __3DS__
+		case	SONG_MENU:			path = ":Audio:MenuSong_reduced.aiff";		break;
+		case	SONG_GARDEN:		path = ":Audio:LawnSong_reduced.aiff";		break;
+		case	SONG_GARDEN_OLD:	path = ":Audio:LawnSongOld_reduced.aiff";	break;
+		case	SONG_PANGEA:		path = ":Audio:Song_Pangea_reduced.aiff";	break;
+		case	SONG_HIGHSCORES:	path = ":Audio:HighScores_reduced.aiff";	break;
+		case	SONG_NIGHT:			path = ":Audio:Night_reduced.aiff";			break;
+		case	SONG_FOREST:		path = ":Audio:Forest_reduced.aiff";		break;
+		case	SONG_POND:			path = ":Audio:PondSong_reduced.aiff";		break;
+		case	SONG_ANTHILL:		path = ":Audio:AntHillSong_reduced.aiff";	break;
+		case	SONG_HIVE:			path = ":Audio:HiveLevel_reduced.aiff";		break;
+		case	SONG_WIN:			path = ":Audio:WinSong_reduced.aiff";		break;
+		case	SONG_LOSE:			path = ":Audio:LoseSong_reduced.aiff";		break;
+		case	SONG_BONUS:			path = ":Audio:BonusSong_reduced.aiff";		break;
+#else
 		case	SONG_MENU:			path = ":Audio:MenuSong.aiff";		break;
 		case	SONG_GARDEN:		path = ":Audio:LawnSong.aiff";		break;
 		case	SONG_GARDEN_OLD:	path = ":Audio:LawnSongOld.aiff";	break;
@@ -452,6 +462,7 @@ OSErr	iErr;
 		case	SONG_WIN:			path = ":Audio:WinSong.aiff";		break;
 		case	SONG_LOSE:			path = ":Audio:LoseSong.aiff";		break;
 		case	SONG_BONUS:			path = ":Audio:BonusSong.aiff";		break;
+#endif
 		default:
 			DoAlert("PlaySong: unknown song #");
 			return;
