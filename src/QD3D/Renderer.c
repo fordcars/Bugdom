@@ -1001,19 +1001,18 @@ static void PrepareOpaqueShading(const MeshQueueEntry* entry)
 	// Enable alpha testing if the mesh's texture calls for it
 	SetState(GL_ALPHA_TEST, texturingMode == kQ3TexturingModeAlphaTest);
 
+#ifndef __3DS__
 	// Per-vertex colors
 	if (mesh->hasVertexColors)
 	{
-#ifndef __3DS__
 		// Related to issue with picaGL glDrawRangeElements (arrays.c)
 		EnableClientState(GL_COLOR_ARRAY);
-#endif
-
 		glColorPointer(4, GL_FLOAT, 0, mesh->vertexColors);
 	}
 	else
 	{
 		DisableClientState(GL_COLOR_ARRAY);
+#endif
 
 		// Apply diffuse color for the entire mesh
 		glColor4f(
@@ -1021,7 +1020,9 @@ static void PrepareOpaqueShading(const MeshQueueEntry* entry)
 				mesh->diffuseColor.g * entry->mods->diffuseColor.g,
 				mesh->diffuseColor.b * entry->mods->diffuseColor.b,
 				1.0f);
+#ifndef __3DS__
 	}
+#endif
 }
 
 static void PrepareAlphaShading(const MeshQueueEntry* entry)
