@@ -40,7 +40,7 @@ INCLUDES	:=	src/Headers extern extern/Pomme/src extern/Pomme/src/QD3D extern/Pom
 GRAPHICS	:=	gfx
 GFXBUILD	:=	$(BUILD)
 ROMFS		:=	Data
-# ICON        :=  Packaging/CroMagRally.png
+ICON        :=  packaging/Bugdom48.png
 #GFXBUILD	:=	$(ROMFS)/gfx
 
 #---------------------------------------------------------------------------------
