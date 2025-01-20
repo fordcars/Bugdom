@@ -83,7 +83,7 @@ static const SettingEntry gSettingsMenu[] =
 		.choices = {"No", "Yes"},
 	},
 
-#if !OSXPPC
+#if !OSXPPC && !__3DS__
 	{
 		.kind = kCloverRange,
 		.ptr = &gGamePrefs.mouseSensitivityLevel,
@@ -111,12 +111,14 @@ static const SettingEntry gSettingsMenu[] =
 	},
 #endif
 
+#ifndef __3DS__
 	{
 		.kind = kButton,
 		.ptr = NULL,
 		.label = "Video settings",
 		.id = 'vide',
 	},
+#endif
 
 	// End sentinel
 	{
@@ -267,7 +269,11 @@ static const char* GeneratePPCDisplayModeSubtitle(void)
 
 static void MakeSettingEntryObjects(int settingID, bool firstTime)
 {
+#ifdef __3DS__
+	static const float XSPREAD = 150;
+#else
 	static const float XSPREAD = 120;
+#endif
 	static const float LH = 28;
 
 	const float x = 0;
@@ -289,7 +295,11 @@ static void MakeSettingEntryObjects(int settingID, bool firstTime)
 
 	tmd.coord = (TQ3Point3D) {x,y,z};
 	tmd.align = TEXTMESH_ALIGN_LEFT;
+#ifdef __3DS__
+	tmd.scale = 0.35f;
+#else
 	tmd.scale = 0.25f;
+#endif
 	tmd.slot = SLOTID_CAPTION_MASK | settingID;
 
 	float pickableX = x;

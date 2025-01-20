@@ -11,6 +11,10 @@
 
 #include "game.h"
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 
 /****************************/
 /*    PROTOTYPES            */
@@ -128,7 +132,9 @@ start_again:
 			timer = 0;
 		else
 		{
+#ifndef __3DS__
 			timer += gFramesPerSecondFrac;
+#endif
 			if (timer > 20.0f)
 			{
 				gMenuSelection = kMenuChoice_TimedOut;
@@ -192,11 +198,23 @@ getout:
 	switch(gMenuSelection)
 	{
 		case	kMenuChoice_About:
+#ifdef __3DS__
+		SelectTopScreen3ds(true);
+#endif
 				DoAboutScreens();
+#ifdef __3DS__
+		SelectTopScreen3ds(false);
+#endif
 				goto start_again;
 				
 		case	kMenuChoice_Scores:
+#ifdef __3DS__
+		SelectTopScreen3ds(true);
+#endif
 				ShowHighScoresScreen(0);
+#ifdef __3DS__
+		SelectTopScreen3ds(false);
+#endif
 				goto start_again;
 
 		case	kMenuChoice_Restore:

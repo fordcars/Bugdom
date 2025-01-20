@@ -11,6 +11,10 @@
 #include "version.h"
 #include <stdio.h>
 
+#ifdef __3DS__
+GLuint g3dsDiagramTexture;
+#endif
+
 
 /****************************/
 /*    PROTOTYPES            */
@@ -58,7 +62,14 @@ void DoAboutScreens(void)
 
 	MakeFadeEvent(true);
 
+#ifdef __3DS__
+	// Preload image on 3ds. Will be cleaned up in CleanupUIStuff().
+	g3dsDiagramTexture = QD3D_LoadTextureFile(3501, kRendererTextureFlags_ClampBoth | kRendererTextureFlags_SolidBlackIsAlpha);
+
+	for (int i = 0; i < 2; i++)
+#else
 	for (int i = 0; i < 3; i++)
+#endif
 	{
 #if NOJOYSTICK
 		// Skip gamepad slide
@@ -117,7 +128,11 @@ static void MakeCreditPart(
 	tmd.coord.y -= LH;
 	TextMesh_Create(&tmd, text1);
 	tmd.coord.y -= LH * .75f;
+#ifdef __3DS__
+	tmd.scale = .23f;
+#else
 	tmd.scale = .15f;
+#endif
 	TextMesh_Create(&tmd, text2);
 
 }
@@ -138,6 +153,31 @@ static void MakeAboutScreenObjects(int slideNumber)
 	{
 		case 0:
 		{
+#ifdef __3DS__
+			TextMesh_Create(&tmd, "Credits");
+
+			float XSPREAD = 65;
+
+			tmd.scale = 0.25f;
+
+			float y = tmd.coord.y - LH*3.5;
+
+			MakeCreditPart(0,			y, "Designed & Developed by", "Brian Greenstone & Toucan Studio, Inc.", "");
+
+			y -= LH*3.5;
+
+			MakeCreditPart(-XSPREAD,	y, "Programming", "Brian Greenstone", "Pangea Software");
+			MakeCreditPart(XSPREAD,		y, "Art Direction", "Scott Harper", "Toucan Studio, Inc.");
+
+			y -= LH*3.5;
+
+			MakeCreditPart(-XSPREAD,	y, "Musical Direction", "Mike Beckett", "Nuclear Kangaroo Music");
+			MakeCreditPart(XSPREAD,		y, "Enhanced Update", "Iliyas Jorio", "github.com/jorio");
+
+			y -= LH*3.5;
+
+			MakeCreditPart(0,			y, "Nintendo 3DS Port", "Carl Hewett", "github.com/fordcars");
+#else
 			TextMesh_Create(&tmd, "Credits");
 
 			float XSPREAD = 65;
@@ -157,12 +197,51 @@ static void MakeAboutScreenObjects(int slideNumber)
 
 			MakeCreditPart(-XSPREAD,	y, "Musical Direction", "Mike Beckett", "Nuclear Kangaroo Music");
 			MakeCreditPart(XSPREAD,		y, "Enhanced Update", "Iliyas Jorio", "github.com/jorio");
+#endif
 
 			break;
 		}
 
 		case 1:
 		{
+#ifdef __3DS__
+			TextMesh_Create(&tmd, "Controls");
+
+			float y = 0;
+
+			gNewObjectDefinition.genre		= DISPLAY_GROUP_GENRE;
+			gNewObjectDefinition.group 		= MODEL_GROUP_ILLEGAL;
+			gNewObjectDefinition.coord.x = 0;
+			gNewObjectDefinition.coord.y = y;
+			gNewObjectDefinition.coord.z = 0;
+			gNewObjectDefinition.flags 	= STATUS_BIT_NULLSHADER|STATUS_BIT_NOZWRITE;
+			gNewObjectDefinition.slot 	= kAboutScreenObjNodeSlot;
+			gNewObjectDefinition.moveCall = nil;
+			gNewObjectDefinition.rot 	= 0;
+			gNewObjectDefinition.scale = 2*60.0f;
+			ObjNode* diagramNode = MakeNewObject(&gNewObjectDefinition);
+
+			TQ3TriMeshData* diagramQuad = MakeQuadMesh(1, 2.0f, 1.0f);
+			diagramQuad->texturingMode = kQ3TexturingModeAlphaTest;
+			diagramQuad->glTextureName = g3dsDiagramTexture;
+			AttachGeometryToDisplayGroupObject(diagramNode, 1, &diagramQuad,
+					kAttachGeometry_TransferMeshOwnership | kAttachGeometry_TransferTextureOwnership);
+
+			UpdateObjectTransforms(diagramNode);
+
+			tmd.scale = 0.25f;
+			tmd.align = TEXTMESH_ALIGN_LEFT;
+			tmd.coord.x =  122;
+			tmd.coord.y =  43+y; tmd.color = TQ3ColorRGBA_FromInt(0x23ab23ff); TextMesh_Create(&tmd, "Kick");
+			tmd.coord.y =  27+y; tmd.color = TQ3ColorRGBA_FromInt(0x0599f8ff); TextMesh_Create(&tmd, "Buddy Bug");
+			tmd.coord.y =  12+y; tmd.color = TQ3ColorRGBA_FromInt(0xdf2020ff); TextMesh_Create(&tmd, "Jump/Boost");
+			tmd.coord.y =  -3+y; tmd.color = TQ3ColorRGBA_FromInt(0xfff139ff); TextMesh_Create(&tmd, "Morph");
+			tmd.align = TEXTMESH_ALIGN_RIGHT;
+			tmd.coord.x = -122; tmd.coord.y = 13+y; TextMesh_Create(&tmd, "Walk/Roll");
+			tmd.align = TEXTMESH_ALIGN_CENTER;
+			tmd.coord.x = -60; tmd.coord.y = 67+y; tmd.color = TQ3ColorRGBA_FromInt(0x3e4642ff); TextMesh_Create(&tmd, "Look left");
+			tmd.coord.x =  60; tmd.coord.y = 67+y; tmd.color = TQ3ColorRGBA_FromInt(0x3e4642ff); TextMesh_Create(&tmd, "Look right");
+#else
 			TextMesh_Create(&tmd, "Gamepad Controls");
 
 			GLuint diagramTexture = QD3D_LoadTextureFile(3500, kRendererTextureFlags_ClampBoth | kRendererTextureFlags_SolidBlackIsAlpha);
@@ -202,9 +281,11 @@ static void MakeAboutScreenObjects(int slideNumber)
 			tmd.align = TEXTMESH_ALIGN_CENTER;
 			tmd.coord.x = -40; tmd.coord.y = 57+y; tmd.color = TQ3ColorRGBA_FromInt(0x3e4642ff); TextMesh_Create(&tmd, "Zoom in");
 			tmd.coord.x =  40; tmd.coord.y = 57+y; tmd.color = TQ3ColorRGBA_FromInt(0x3e4642ff); TextMesh_Create(&tmd, "Zoom out");
+#endif
 			break;
 		}
 
+#ifndef __3DS__
 		case 2:
 		{
 #if OSXPPC
@@ -261,6 +342,7 @@ static void MakeAboutScreenObjects(int slideNumber)
 #endif
 			break;
 		}
+#endif // __3DS__
 	}
 }
 
@@ -280,6 +362,37 @@ static void AboutScreenDrawStuff(const QD3DSetupOutputType *setupInfo)
 
 static void MakeLegalScreenObjects(void)
 {
+#ifdef __3DS__
+	const float LH = 17;
+
+	TextMeshDef tmd;
+	TextMesh_FillDef(&tmd);
+	tmd.align = TEXTMESH_ALIGN_CENTER;
+	tmd.slot = kAboutScreenObjNodeSlot;
+	tmd.coord.y = 66;
+	tmd.withShadow = false;
+	tmd.color = kNameColor;
+	tmd.scale = 0.5f;
+	//tmd.coord.y -= LH * 4;
+
+	TextMesh_Create(&tmd, "Bugdom " PROJECT_VERSION);
+
+	tmd.scale = 0.3f;
+	tmd.coord.y = LH/2;
+	TextMesh_Create(&tmd, "pangeasoft.net/bug");
+	tmd.coord.y -= LH;
+	TextMesh_Create(&tmd, "jorio.itch.io/bugdom");
+
+	tmd.coord.y = -66;
+	tmd.scale *= .8f;
+	tmd.color = kDimmedColor;
+	TextMesh_Create(&tmd, "Original game: \251 1999 Pangea Software, Inc.");
+	tmd.coord.y -= LH * .6f;
+	TextMesh_Create(&tmd, "Modern version: \251 2024 Iliyas Jorio.   Nintendo 3DS port by Carl Hewett.");
+
+	tmd.coord.y -= LH * .6f;
+	TextMesh_Create(&tmd, "\223Bugdom\224 is a registered trademark of Pangea Software, Inc.");
+#else
 	const float LH = 13;
 
 	TextMeshDef tmd;
@@ -306,6 +419,7 @@ static void MakeLegalScreenObjects(void)
 	TextMesh_Create(&tmd, "Original game: \251 1999 Pangea Software, Inc.   Modern version: \251 2024 Iliyas Jorio.");
 	tmd.coord.y -= LH * .66f;
 	TextMesh_Create(&tmd, "\223Bugdom\224 is a registered trademark of Pangea Software, Inc.");
+#endif
 }
 
 void DoLegalScreen(void)
