@@ -122,19 +122,23 @@ static void MakeCreditPart(
 	tmd.align = TEXTMESH_ALIGN_CENTER;
 
 	tmd.color = kHeadingColor;
-	TextMesh_Create(&tmd, heading);
+	if(*heading != '\0')
+		TextMesh_Create(&tmd, heading);
 
 	tmd.color = kNameColor;
 	tmd.coord.y -= LH;
-	TextMesh_Create(&tmd, text1);
+	if(*text1 != '\0')
+		TextMesh_Create(&tmd, text1);
+
 	tmd.coord.y -= LH * .75f;
 #ifdef __3DS__
 	tmd.scale = .23f;
 #else
 	tmd.scale = .15f;
 #endif
-	TextMesh_Create(&tmd, text2);
 
+	if(*text2 != '\0')
+		TextMesh_Create(&tmd, text2);
 }
 
 static void MakeAboutScreenObjects(int slideNumber)
