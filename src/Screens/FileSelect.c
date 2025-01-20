@@ -19,6 +19,10 @@
 #include <ctype.h>
 #include <stdio.h>
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 
 /****************************/
 /*    PROTOTYPES            */
@@ -463,7 +467,11 @@ static int FileScreenMainLoop()
 	int finalPick = -1;
 	float transitionAwayTime = 0;
 
-	while (1)
+#ifdef __3DS__
+	while(ShouldDoMainLoop3ds())
+#else
+	while(1)
+#endif
 	{
 		UpdateInput();
 		MoveObjects();
@@ -519,4 +527,6 @@ static int FileScreenMainLoop()
 				return finalPick;
 		}
 	}
+
+	return -1;
 }

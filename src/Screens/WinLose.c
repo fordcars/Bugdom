@@ -11,6 +11,10 @@
 
 #include "game.h"
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 
 /****************************/
 /*    PROTOTYPES            */
@@ -554,8 +558,11 @@ float	fps;
 			GAME_ASSERT_MESSAGE(gThrone->NumMeshes > WIN_THRONE_WATER_SUBMESH, "water mesh ID not found in win throne");
 			QD3D_ScrollUVs(gThrone->MeshList[WIN_THRONE_WATER_SUBMESH], fps*.1f, -fps*.05f);
 		}
-		
+#ifdef __3DS__
+	}while(duration > 0.0f && ShouldDoMainLoop3ds());
+#else
 	}while(duration > 0.0f);
+#endif
 
 	return(false);
 }

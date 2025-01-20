@@ -12,6 +12,10 @@
 
 #include "game.h"
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 
 /****************************/
 /*    PROTOTYPES            */
@@ -143,7 +147,11 @@ int curState = kPauseChoice_Resume;
 
 	bool ignoreThumbstick = true;
 
-	while (1)
+#ifdef __3DS__
+	while(ShouldDoMainLoop3ds())
+#else
+	while(1)
+#endif
 	{
 		QD3D_DrawScene(gGameViewInfoPtr, DrawTerrain);
 		DoSDLMaintenance();
@@ -380,8 +388,11 @@ Boolean			fo = false;
 			
 	PlaySong(SONG_PANGEA,false);			
 	QD3D_CalcFramesPerSecond();					
-
+#ifdef __3DS__
+	while (gSongPlayingFlag && ShouldDoMainLoop3ds()) // wait until song stops
+#else
 	while (gSongPlayingFlag)					// wait until song stops
+#endif
 	{
 		QD3D_CalcFramesPerSecond();					
 	

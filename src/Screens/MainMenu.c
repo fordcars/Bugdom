@@ -104,7 +104,11 @@ start_again:
 
 	InitAnalogCursor();
 
-	while(true)	
+#ifdef __3DS__
+	while(ShouldDoMainLoop3ds())
+#else
+	while(true)
+#endif
 	{
 		MoveObjects();
 		MoveMenuCamera();

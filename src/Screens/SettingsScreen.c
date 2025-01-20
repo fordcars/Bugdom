@@ -9,6 +9,10 @@
 
 #include "game.h"
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 
 /****************************/
 /*    PROTOTYPES            */
@@ -471,7 +475,11 @@ void DoSettingsScreen(void)
 	SetupSettingsScreen("Settings", gSettingsMenu);
 	bool done = false;
 
-	while (!done)
+#ifdef __3DS__
+	while(!done && ShouldDoMainLoop3ds())
+#else
+	while(!done)
+#endif
 	{
 		UpdateInput();
 		MoveObjects();

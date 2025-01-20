@@ -12,6 +12,10 @@
 #include <stdio.h>
 
 #ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
+
+#ifdef __3DS__
 GLuint g3dsDiagramTexture;
 #endif
 
@@ -83,7 +87,11 @@ void DoAboutScreens(void)
 
 		FlushMouseButtonPress();
 
-		while (1)
+#ifdef __3DS__
+		while(ShouldDoMainLoop3ds())
+#else
+		while(1)
+#endif
 		{
 			UpdateInput();
 			MoveObjects();

@@ -15,7 +15,7 @@
 #include "game.h"
 
 #ifdef __3DS__
-#include "Platform/3ds/Pomme3ds.h"
+	#include "Platform/3ds/Pomme3ds.h"
 #endif
 
 

@@ -386,7 +386,11 @@ float fps;
 		/* MAIN GAME LOOP */
 		/******************/
 
+#ifdef __3DS__
+	while(ShouldDoMainLoop3ds())
+#else
 	while(true)
+#endif
 	{
 		fps = gFramesPerSecondFrac;
 		UpdateInput();
@@ -882,11 +886,13 @@ unsigned long	someLong;
 
 		/* MAIN LOOP */
 			
-	while(true)
-	{
 #ifdef __3DS__
+	while(ShouldDoMainLoop3ds())
+	{
 		SelectTopScreen3ds(false);
 #else
+	while(true)
+	{
 		DoTitleScreen();
 #endif
 		if (DoMainMenu())

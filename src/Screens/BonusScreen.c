@@ -11,6 +11,10 @@
 
 #include "game.h"
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 
 /****************************/
 /*    PROTOTYPES            */
@@ -569,8 +573,11 @@ static void TallyTotalScore(void)
 		/****************/
 		/* TALLY POINTS */
 		/****************/
-
+#ifdef __3DS__
+	while(gBonusValue > 0 && ShouldDoMainLoop3ds())
+#else
 	while(gBonusValue > 0)
+#endif
 	{
 		DrawBonusStuff(.05);	
 	
@@ -644,7 +651,11 @@ int mouseY = 0;
 	bool captionsCreatedYet = false;
 
 	InitAnalogCursor();
+#ifdef __3DS__
+	while(ShouldDoMainLoop3ds())
+#else
 	while(true)
+#endif
 	{
 		moveTextUpwardsTween += gFramesPerSecondFrac;
 
@@ -708,6 +719,10 @@ static void DrawBonusStuff(float duration)
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);
 		QD3D_CalcFramesPerSecond();				
 		DoSDLMaintenance();
+#ifdef __3DS__
+	}while((duration -= gFramesPerSecondFrac) > 0.0f && ShouldDoMainLoop3ds());
+#else
 	}while((duration -= gFramesPerSecondFrac) > 0.0f);
+#endif
 }
 

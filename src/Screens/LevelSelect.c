@@ -71,7 +71,11 @@ bool DoLevelSelect(void)
 
 	FlushMouseButtonPress();
 
-	while (1)
+#ifdef __3DS__
+	while(ShouldDoMainLoop3ds())
+#else
+	while(1)
+#endif
 	{
 		UpdateInput();
 		MoveObjects();

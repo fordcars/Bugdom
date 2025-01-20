@@ -11,6 +11,10 @@
 
 #include "game.h"
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 
 /****************************/
 /*    PROTOTYPES            */
@@ -491,8 +495,11 @@ static Boolean TitleWaitAndDraw(float duration)
 		
 		if (GetSkipScreenInput())
 			return(true);		
-		
+#ifdef __3DS__
+	}while(duration > 0.0f && ShouldDoMainLoop3ds());
+#else
 	}while(duration > 0.0f);
+#endif
 
 	return(false);
 }

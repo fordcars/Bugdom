@@ -11,6 +11,9 @@
 
 #include "game.h"
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
 
 /****************************/
 /*    PROTOTYPES            */
@@ -69,6 +72,9 @@ Boolean			gEnteringName = false;
 void ShowHighScoresScreen(unsigned long newScore)
 {
 TQ3Vector3D	camDelta = {0,0,0};
+#ifdef __3DS__
+	QD3D_Draw3dsStaticScreen(4001, false);
+#endif
 
 	PlaySong(SONG_HIGHSCORES,true);
 
@@ -114,7 +120,11 @@ TQ3Vector3D	camDelta = {0,0,0};
 		if (GetSkipScreenInput())
 			break;		
 			
+#ifdef __3DS__
+	}while(gGameViewInfoPtr->currentCameraCoords.y > -500 && ShouldDoMainLoop3ds());
+#else
 	}while(gGameViewInfoPtr->currentCameraCoords.y > -500);
+#endif
 	
 	
 			/* CLEANUP */
@@ -487,7 +497,11 @@ short		i;
 				
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);	
 		DoSDLMaintenance();
+#ifdef __3DS__
+	} while (newKey != CHAR_RETURN && ShouldDoMainLoop3ds());
+#else
 	} while (newKey != CHAR_RETURN);
+#endif
 
 			/* CLEANUP */
 
