@@ -77,7 +77,9 @@ static float	gMoveTextUpwards;
 void DoBonusScreen(void)
 {
 Boolean wantToSave = false;
-
+#ifdef __3DS__
+		QD3D_Draw3dsStaticScreen(4000, true);
+#endif
 	
 			/*********/
 			/* SETUP */

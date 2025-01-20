@@ -307,7 +307,10 @@ static void PlayGame(void)
 
 		gLevelType = gLevelTable[gRealLevel].levelType;
 		gAreaNum = gLevelTable[gRealLevel].areaNum;
-		
+
+#ifdef __3DS__
+		QD3D_Draw3dsStaticScreen(4001, false);
+#endif
 
 			/* PLAY THIS AREA */
 		
