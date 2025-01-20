@@ -257,6 +257,10 @@ TQ3Vector3D				fillDirection1 = { 1, -.4, -.8 };			// key
 TQ3Vector3D				fillDirection2 = { -.7, -.2, -.9 };			// fill
 ObjNode					*newObj;
 
+#ifdef __3DS__
+	QD3D_Draw3dsStaticScreen(4000, true);
+#endif
+
 	gCamDX = 10; gCamDY = -5, gCamDZ = 1;
 	GameScreenToBlack();
 
