@@ -116,6 +116,7 @@ struct SuperTileMemoryType
 	uint32_t			glTextureName[MAX_LAYERS][MAX_LODS];	// OpenGL texture name for floor & ceiling at all LODs
 #ifdef __3DS__
 	uint32_t*			textureData[MAX_LAYERS][MAX_LODS];		// pixel data for floor & ceiling at all LODs
+	bool				processed;
 #else
 	uint16_t*			textureData[MAX_LAYERS][MAX_LODS];		// pixel data for floor & ceiling at all LODs
 #endif

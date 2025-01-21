@@ -12,6 +12,61 @@
 #include "game.h"
 #include <stdio.h>
 
+#ifdef __3DS__
+#define TERRAIN_RING_BUFFER_MAX_ENTRIES MAX_SUPERTILE_ACTIVE_RANGE * MAX_SUPERTILE_ACTIVE_RANGE * 10
+
+typedef struct
+{
+	int32_t superTileNum;
+	long startCol;
+	long startRow;
+} RingBufferEntry;
+
+typedef struct
+{
+	int entryCount;
+	long writeIndex;
+	long readIndex;
+	RingBufferEntry entries[TERRAIN_RING_BUFFER_MAX_ENTRIES];
+} RingBuffer;
+
+static void ClearRingBuffer(RingBuffer* buf)
+{
+	memset(buf, 0, sizeof(RingBuffer));
+}
+
+// Returns true on success
+static bool PushToRingBuffer(RingBuffer* buf, RingBufferEntry entry)
+{
+	if (buf->entryCount == TERRAIN_RING_BUFFER_MAX_ENTRIES)
+		return false;
+	buf->entries[(buf->writeIndex)++] = entry;
+	++(buf->entryCount);
+
+	if (buf->writeIndex == TERRAIN_RING_BUFFER_MAX_ENTRIES)
+		buf->writeIndex = 0;
+	return true;
+}
+
+// Returns true on success
+static bool PopFromRingBuffer(RingBuffer* buf, RingBufferEntry *poppedEntry)
+{
+	if (buf->entryCount == 0)
+		return false;
+	*poppedEntry = buf->entries[(buf->readIndex)++];
+	--(buf->entryCount);
+
+	if (buf->readIndex == TERRAIN_RING_BUFFER_MAX_ENTRIES)
+		buf->readIndex = 0;
+	return true;
+}
+
+static bool IsRingBufferEmpty(RingBuffer* buf)
+{
+	return buf->entryCount == 0;
+}
+#endif
+
 
 /****************************/
 /*  PROTOTYPES             */
@@ -19,12 +74,20 @@
 
 static void ScrollTerrainUp(long superRow, long superCol);
 static void ScrollTerrainDown(long superRow, long superCol);
+#ifdef __3DS__
+static void ScrollTerrainLeft(bool deferProcessing);
+#else
 static void ScrollTerrainLeft(void);
+#endif
 static void ScrollTerrainRight(long superCol, long superRow, long tileCol, long tileRow);
 static short GetFreeSuperTileMemory(void);
 static inline void ReleaseSuperTileObject(int32_t superTileNum);
 static void CalcNewItemDeleteWindow(void);
+#ifdef __3DS__
+static short	BuildTerrainSuperTile(int32_t superTileNum, long startCol, long startRow);
+#else
 static short	BuildTerrainSuperTile(long	startCol, long startRow);
+#endif
 static Boolean IsSuperTileVisible(int32_t superTileNum, Byte layer);
 #ifdef __3DS__
 static void DrawTileIntoMipmap(uint16_t tile, int row, int col, uint32_t* buffer);
@@ -166,6 +229,10 @@ uint16_t		*gTempTextureBuffer = nil;
 
 TQ3Vector3D		gRecentTerrainNormal[2];							// from _Planar
 
+#ifdef __3DS__
+RingBuffer gPendingTerrainTileQueue;
+#endif
+
 
 
 /****************** INIT TERRAIN MANAGER ************************/
@@ -200,6 +267,10 @@ void InitTerrainManager(void)
 	Render_SetDefaultModifiers(&gTerrainRenderMods);
 	gTerrainRenderMods.statusBits |= STATUS_BIT_NULLSHADER;
 	gTerrainRenderMods.drawOrder = kDrawOrder_Terrain;
+
+#ifdef __3DS__
+	ClearRingBuffer(&gPendingTerrainTileQueue);
+#endif
 }
 
 
@@ -329,6 +400,9 @@ int	i;
 
 	
 	ReleaseAllSuperTiles();
+#ifdef __3DS__
+	ClearRingBuffer(&gPendingTerrainTileQueue);
+#endif
 }
 
 
@@ -465,6 +539,10 @@ retryParseLODPref:
 
 		superTile->mode = SUPERTILE_MODE_FREE;									// it's free for use
 		gNumFreeSupertiles++;
+
+#ifdef __3DS__
+		superTile->processed = false;
+#endif
 
 				/************************************************/
 				/* CREATE TEXTURE & TRIMESH FOR FLOOR & CEILING */
@@ -634,10 +712,17 @@ static short GetFreeSuperTileMemory(void)
 // OUTPUT: index to supertile
 //
 
+#ifdef __3DS__
+// On 3ds, we allocate tile when scrolling
+static short	BuildTerrainSuperTile(int32_t superTileNum, long startCol, long startRow)
+#else
 static short	BuildTerrainSuperTile(long	startCol, long startRow)
+#endif
 {
 long	 			row,col,row2,col2;
+#ifndef __3DS__
 int32_t				superTileNum;
+#endif
 float				height,miny,maxy;
 TQ3TriMeshData		*triMeshData;
 TQ3Vector3D			*vertexNormalList;
@@ -660,9 +745,14 @@ static TQ3Vector3D	faceNormal[NUM_TRIS_IN_SUPERTILE];
 	else
 		numLayers = 1;
 
-
+#ifdef __3DS__
+	superTilePtr = &gSuperTileMemoryList[superTileNum];			// get ptr to it
+	if (superTilePtr->mode == SUPERTILE_MODE_FREE)
+		return -1; // No longer valid, probably got released
+#else
 	superTileNum = GetFreeSuperTileMemory();					// get memory block for the data
 	superTilePtr = &gSuperTileMemoryList[superTileNum];			// get ptr to it
+#endif
 
 	if (gDisableHiccupTimer)
 		superTilePtr->hiccupTimer = 0;
@@ -1071,7 +1161,11 @@ static TQ3Vector3D	faceNormal[NUM_TRIS_IN_SUPERTILE];
 		superTilePtr->radius[layer] = 0.5f * Q3Point3D_Distance(&triMeshData->bBox.min, &triMeshData->bBox.max);
 
 	}	// j (layer)
-									
+
+#ifdef __3DS__
+	superTilePtr->processed = true;
+#endif
+
 	return(superTileNum);
 }
 
@@ -1573,6 +1667,9 @@ static inline void ReleaseSuperTileObject(int32_t superTileNum)
 	{
 		gSuperTileMemoryList[superTileNum].mode = SUPERTILE_MODE_FREE;		// it's free!
 		gNumFreeSupertiles++;
+#ifdef __3DS__
+		gSuperTileMemoryList[superTileNum].processed = false;
+#endif
 	}
 
 	GAME_ASSERT(gNumFreeSupertiles <= gSupertileBudget);
@@ -1610,6 +1707,11 @@ void DrawTerrain(const QD3DSetupOutputType *setupInfo)
 	{
 		if (gSuperTileMemoryList[i].mode != SUPERTILE_MODE_USED)		// if supertile is being used, then draw it
 			continue;
+
+#ifdef __3DS__
+		if (!gSuperTileMemoryList[i].processed)
+			continue; // Not yet processed
+#endif
 		
 				/* SEE IF DO HICCUP PREVENTION */
 				
@@ -1852,6 +1954,18 @@ long	x,y;
 long	superCol,superRow,tileCol,tileRow;
 TQ3Vector2D	look;
 
+#ifdef __3DS__
+	// Build pending tiles on multiple frames for load balacing
+	static RingBufferEntry entry;
+
+tryAgain:
+	if (PopFromRingBuffer(&gPendingTerrainTileQueue, &entry))
+	{
+		if (BuildTerrainSuperTile(entry.superTileNum, entry.startCol, entry.startRow) == -1)
+			goto tryAgain; // Tile got released before we got a chance to build it
+	}
+#endif
+
 
 			/* CALC PIXEL COORDS OF FAR LEFT SUPER TILE */
 			//
@@ -1906,8 +2020,7 @@ TQ3Vector2D	look;
 	{
 		if (superCol > (gCurrentSuperTileCol+1))						// check for overload scroll
 			DoFatalAlert("DoMyTerrainUpdate: scrolled left > 1 tile!");
-		ScrollTerrainLeft();
-		gCurrentSuperTileCol = superCol;
+		ScrollTerrainLeft(true);
 	}
 	else
 				/* SEE IF SCROLLED RIGHT */
@@ -2020,8 +2133,20 @@ long	tileRow,tileCol;
 		{
 			if ((tileCol >= 0) && (tileCol < gTerrainTileWidth))
 			{
+#ifdef __3DS__
+				// Allocate now, but defer processing
+				superTileNum = GetFreeSuperTileMemory();
+				gTerrainScrollBuffer[superRow][col] = superTileNum;
+
+				if(!PushToRingBuffer(&gPendingTerrainTileQueue, (RingBufferEntry){superTileNum, tileCol, tileRow}))
+				{
+					// Buffer full somehow, process immediately
+					BuildTerrainSuperTile(superTileNum, tileCol, tileRow);
+				}
+#else
 				superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 					// make new terrain object
 				gTerrainScrollBuffer[superRow][col] = superTileNum;						// save into scroll buffer array
+#endif
 			}
 		}
 next:
@@ -2114,8 +2239,20 @@ long	tileRow,tileCol;
 		{
 			if ((tileCol >= 0) && (tileCol < gTerrainTileWidth))
 			{
+#ifdef __3DS__
+				// Allocate now, but defer processing
+				superTileNum = GetFreeSuperTileMemory();
+				gTerrainScrollBuffer[superRow][col] = superTileNum;
+
+				if(!PushToRingBuffer(&gPendingTerrainTileQueue, (RingBufferEntry){superTileNum, tileCol, tileRow}))
+				{
+					// Buffer full somehow, process immediately
+					BuildTerrainSuperTile(superTileNum, tileCol, tileRow);
+				}
+#else
 				superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 				// make new terrain object
 				gTerrainScrollBuffer[superRow][col] = superTileNum;					// save into scroll buffer array
+#endif
 			}
 		}
 next:
@@ -2157,7 +2294,11 @@ check_items:
 // Assumes gCurrentSuperTileCol & gCurrentSuperTileRow are in current positions, will do gCurrentSuperTileCol++ at end of routine.
 //
 
+#ifdef __3DS__
+static void ScrollTerrainLeft(bool deferProcessing)
+#else
 static void ScrollTerrainLeft(void)
+#endif
 {
 long	row,top,bottom,right;
 int32_t	superTileNum;
@@ -2210,8 +2351,20 @@ long	bottomRow;
 
 		if (gTerrainScrollBuffer[row][newSuperCol] == EMPTY_SUPERTILE)			// make sure nothing already here
 		{
+#ifdef __3DS__
+			// Allocate now, but defer processing
+			superTileNum = GetFreeSuperTileMemory();
+			gTerrainScrollBuffer[row][newSuperCol] = superTileNum;
+
+			if(!deferProcessing || !PushToRingBuffer(&gPendingTerrainTileQueue, (RingBufferEntry){superTileNum, tileCol, tileRow}))
+			{
+				// Buffer full somehow, process immediately
+				BuildTerrainSuperTile(superTileNum, tileCol, tileRow);
+			}
+#else
 			superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 				// make new terrain object
 			gTerrainScrollBuffer[row][newSuperCol] = superTileNum;				// save into scroll buffer array
+#endif
 		}
 next:
 		tileRow += SUPERTILE_SIZE;
@@ -2298,8 +2451,20 @@ long	top,bottom,left;
 		{
 			if ((tileRow >= 0) && (tileRow < gTerrainTileDepth))
 			{
+#ifdef __3DS__
+				// Allocate now, but defer processing
+				superTileNum = GetFreeSuperTileMemory();
+				gTerrainScrollBuffer[row][superCol] = superTileNum;
+
+				if(!PushToRingBuffer(&gPendingTerrainTileQueue, (RingBufferEntry){superTileNum, tileCol, tileRow}))
+				{
+					// Buffer full somehow, process immediately
+					BuildTerrainSuperTile(superTileNum, tileCol, tileRow);
+				}
+#else
 				superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 				// make new terrain object
 				gTerrainScrollBuffer[row][superCol] = superTileNum;					// save into scroll buffer array
+#endif
 			}
 		}
 next:
@@ -2359,7 +2524,14 @@ long	i,w;
 
 	for (i=0; i < w; i++)
 	{
+#ifdef __3DS__
+		// Note for 3ds: if we defer tile processing here, we may be missing
+		// some tiles at the start of the level for some reason...
+		// But it's better to disable deferring for the initial loading anyway!
+		ScrollTerrainLeft(false);
+#else
 		ScrollTerrainLeft();
+#endif
 		CalcNewItemDeleteWindow();							// recalc item delete window
 	}	
 	
