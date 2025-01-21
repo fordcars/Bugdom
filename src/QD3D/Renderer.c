@@ -555,10 +555,6 @@ void Render_StartFrame(void)
 		clearWhat &= ~GL_COLOR_BUFFER_BIT;
 #endif
 
-#ifdef __3DS__
-	WaitForVBlank3ds();
-#endif
-
 	glClear(clearWhat);
 
 	GAME_ASSERT(gState.currentTransform == NULL);

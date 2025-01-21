@@ -420,6 +420,7 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(const QD
 
 
 #ifdef __3DS__
+	WaitForVBlank3ds();
 	SwapBuffers3ds();
 #else
 	SDL_GL_SwapWindow(gSDLWindow);
