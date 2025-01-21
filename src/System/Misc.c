@@ -14,6 +14,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 
 /****************************/
 /*    CONSTANTS             */
@@ -57,6 +61,7 @@ void DoAlert(const char* format, ...)
 	printf("BUGDOM ALERT: %s\n", message);
 #ifndef __3DS__
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Bugdom", message, gSDLWindow);
+	while (ShouldDoMainLoop3ds()) {}
 #endif
 }
 
@@ -79,6 +84,7 @@ void DoFatalAlert(const char* format, ...)
 	printf("BUGDOM FATAL ALERT: %s\n", message);
 #ifndef __3DS__
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Bugdom", message, gSDLWindow);
+	while (ShouldDoMainLoop3ds()) {}
 #endif
 	ExitToShell();
 }

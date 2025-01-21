@@ -1907,6 +1907,7 @@ TQ3Vector2D	look;
 		if (superCol > (gCurrentSuperTileCol+1))						// check for overload scroll
 			DoFatalAlert("DoMyTerrainUpdate: scrolled left > 1 tile!");
 		ScrollTerrainLeft();
+		gCurrentSuperTileCol = superCol;
 	}
 	else
 				/* SEE IF SCROLLED RIGHT */

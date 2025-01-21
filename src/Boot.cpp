@@ -13,6 +13,10 @@
 #include "game.h"
 #include "version.h"
 
+#ifdef __3DS__
+	#include "Platform/3ds/Pomme3ds.h"
+#endif
+
 extern "C"
 {
 	// bare minimum to satisfy externs in game code
@@ -292,6 +296,7 @@ int main(int argc, char** argv)
 		SDL_ShowSimpleMessageBox(0, "Bugdom", finalErrorMessage.c_str(), nullptr);
 #else
 		std::cerr << "Uncaught exception: " << finalErrorMessage << std::endl;
+		while (ShouldDoMainLoop3ds()) {}
 #endif
 	}
 
