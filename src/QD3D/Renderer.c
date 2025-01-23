@@ -1240,3 +1240,82 @@ TQ3Area Render_GetAdjustedViewportRect(Rect paneClip, int logicalWidth, int logi
 
 	return (TQ3Area) {{left,top},{right,bottom}};
 }
+
+
+#ifdef __3DS__
+// Do not call during rendering loop
+void Draw3dsFullscreenTexture(GLuint texture, bool topScreen)
+{
+	// Define quad
+	static GLfloat points[] = {
+		0.0f,   0.0f,   0.0f,
+		640.0f, 0.0f,   0.0f,
+		640.0f, 480.0f, 0.0f,
+		0.0f,   480.0f, 0.0f
+	};
+	static GLfloat UVs[] = {
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		1.0f, 1.0f,
+		0.0f, 1.0f
+	};
+	static GLushort indices[] = {
+		0, 1, 2,
+		0, 2, 3
+	};
+
+	bool oldTopScreen = IsTopScreenSelected3ds();
+
+	SelectTopScreen3ds(topScreen);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glClear(GL_COLOR_BUFFER_BIT);
+	DisableState(GL_CULL_FACE);
+	DisableState(GL_DEPTH_TEST);
+	DisableState(GL_BLEND);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+	// Enable texture
+	EnableState(GL_TEXTURE_2D);
+	EnableClientState(GL_TEXTURE_COORD_ARRAY);
+	Render_BindTexture(texture);
+	glTexCoordPointer(2, GL_FLOAT, 0, UVs);
+
+	glVertexPointer(3, GL_FLOAT, 0, points);
+
+	// Setup transformation
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0,640,480,0,0,1000);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	// Render
+	glDrawElements(GL_TRIANGLES, 2*3, GL_UNSIGNED_SHORT, indices);
+	SwapBuffers3ds();
+
+	// Reset and cleanup
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+	DisableState(GL_TEXTURE_2D);
+	DisableClientState(GL_TEXTURE_COORD_ARRAY);
+	EnableState(GL_DEPTH_TEST); // This is required by the other rendering routines
+	SelectTopScreen3ds(oldTopScreen);
+}
+
+// Do not call during rendering loop. This should only be called at the start of the scene.
+// Note: we tried preloading the textures instead of loading them when calling this function,
+// but this caused the texture to be corrupt on hardware for some reason.
+void Draw3dsStaticScreen(int textureRezID, bool topScreen)
+{
+	GLuint texture = QD3D_LoadTextureFile(textureRezID, kRendererTextureFlags_None);
+	Draw3dsFullscreenTexture(texture, topScreen);
+
+	// We can already delete the texture; the framebuffer won't be cleared for a while
+	glDeleteTextures(1, &texture);
+}
+#endif

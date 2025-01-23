@@ -307,10 +307,7 @@ static void PlayGame(void)
 
 		gLevelType = gLevelTable[gRealLevel].levelType;
 		gAreaNum = gLevelTable[gRealLevel].areaNum;
-
-#ifdef __3DS__
-		QD3D_Draw3dsStaticScreen(4001, false);
-#endif
+		
 
 			/* PLAY THIS AREA */
 		
@@ -540,7 +537,11 @@ QD3DSetupInputType	viewDef;
 	
 	viewDef.camera.fov 				= 1.1;
 	
+#ifdef __3DS__
+	viewDef.view.paneClip.top		=	0;
+#else
 	viewDef.view.paneClip.top		=	62;
+#endif
 	viewDef.view.paneClip.bottom	=	gGamePrefs.showBottomBar ? 60 : 0;
 	viewDef.view.paneClip.left		=	0;
 	viewDef.view.paneClip.right		=	0;

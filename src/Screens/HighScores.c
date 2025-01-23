@@ -73,7 +73,7 @@ void ShowHighScoresScreen(unsigned long newScore)
 {
 TQ3Vector3D	camDelta = {0,0,0};
 #ifdef __3DS__
-	QD3D_Draw3dsStaticScreen(4001, false);
+	Draw3dsStaticScreen(4001, false);
 #endif
 
 	PlaySong(SONG_HIGHSCORES,true);

@@ -37,36 +37,71 @@ static void ShowBossHealth(void);
 
 #define	BOSS_WIDTH			200
 
-#define	LIVES_X				11
-#define	LIVES_Y				0
-#define	LIVES_WIDTH			42
+#ifdef __3DS__
+	#define	LIVES_X				150
+	#define	LIVES_Y				76
+	#define	LIVES_WIDTH			50
 
-#define	TIMER_X				320
-#define	TIMER_Y				6
+	#define	TIMER_X				160
+	#define	TIMER_Y				6
 
-#define	HEALTH_X			TIMER_X
-#define	HEALTH_Y			50
-#define	HEALTH_WIDTH		92
-#define	HEALTH_HEIGHT		7
+	#define	HEALTH_X			TIMER_X
+	#define	HEALTH_Y			64
+	#define	HEALTH_WIDTH		120
+	#define	HEALTH_HEIGHT		7
 
 
-#define	HAND_X				TIMER_X
-#define	HAND_Y				1
+	#define	HAND_X				TIMER_X
+	#define	HAND_Y				12
 
-#define	BALL_X				(TIMER_X-13)
-#define	BALL_Y				17
+	#define	BALL_X				147
+	#define	BALL_Y				28
 
-#define	LADYBUG_X			396
-#define	LADYBUG_Y			0
+	#define	LADYBUG_X			0
+	#define	LADYBUG_Y			160
 
-#define	GOLD_CLOVER_X		141
-#define	GOLD_CLOVER_Y		0
+	#define	GOLD_CLOVER_X		63
+	#define	GOLD_CLOVER_Y		79
 
-#define	BLUE_CLOVER_X		196
-#define	BLUE_CLOVER_Y		0
+	#define	BLUE_CLOVER_X		0
+	#define	BLUE_CLOVER_Y		80
+#else
+	#define	LIVES_X				11
+	#define	LIVES_Y				0
+	#define	LIVES_WIDTH			42
 
-#define	INFOBAR_TEXTURE_WIDTH	1024
-#define	INFOBAR_TEXTURE_HEIGHT	128
+	#define	TIMER_X				320
+	#define	TIMER_Y				6
+
+	#define	HEALTH_X			TIMER_X
+	#define	HEALTH_Y			50
+	#define	HEALTH_WIDTH		92
+	#define	HEALTH_HEIGHT		7
+
+
+	#define	HAND_X				TIMER_X
+	#define	HAND_Y				1
+
+	#define	BALL_X				(TIMER_X-13)
+	#define	BALL_Y				17
+
+	#define	LADYBUG_X			396
+	#define	LADYBUG_Y			0
+
+	#define	GOLD_CLOVER_X		141
+	#define	GOLD_CLOVER_Y		0
+
+	#define	BLUE_CLOVER_X		196
+	#define	BLUE_CLOVER_Y		0
+#endif
+
+#ifdef __3DS__
+	#define	INFOBAR_TEXTURE_WIDTH	320
+	#define	INFOBAR_TEXTURE_HEIGHT	240
+#else
+	#define	INFOBAR_TEXTURE_WIDTH	1024
+	#define	INFOBAR_TEXTURE_HEIGHT	128
+#endif
 #define	BOTTOM_BAR_Y_IN_TEXTURE	64
 
 
@@ -270,14 +305,16 @@ void InitInfobar(void)
 
 			/* DO BOTTOM */
 
+#ifndef __3DS__
 	DrawSprite(SPRITE_INFOBARBOTTOM, 0, BOTTOM_BAR_Y_IN_TEXTURE);
+#endif
 
 			/* CREATE TEXTURE */
 
 	gInfobarTextureName = Render_LoadTexture(
 			GL_RGB,
-			1024,
-			128,
+			INFOBAR_TEXTURE_WIDTH,
+			INFOBAR_TEXTURE_HEIGHT,
 			GL_RGBA,
 			GL_UNSIGNED_BYTE,
 			gInfobarTexture,
@@ -292,6 +329,7 @@ void InitInfobar(void)
 
 	GAME_ASSERT_MESSAGE(!gInfobarTopMesh, "infobar top mesh already created");
 
+#ifndef __3DS__
 	gInfobarTopMesh = MakeQuadMesh_UI(
 			0, 0, 640, 62,
 			0,
@@ -301,6 +339,7 @@ void InitInfobar(void)
 	);
 	gInfobarTopMesh->texturingMode = kQ3TexturingModeOpaque;
 	gInfobarTopMesh->glTextureName = gInfobarTextureName;
+#endif
 
 			/* CREATE BOTTOM MESH */
 
@@ -390,6 +429,27 @@ unsigned long	bits;
 		ShowBossHealth();	
 	
 	gInfobarUpdateBits = 0;
+
+#ifdef __3DS__
+	if (gInfobarTextureIsDirty)
+	{
+		// Because picaGL lacks glPixelStorei, the last argument of Render_UpdateTexture
+		// must be 0. A workaround is to update the entire texture instead of just a portion of it.
+		Render_UpdateTexture(
+				gInfobarTextureName,
+				0,
+				0,
+				INFOBAR_TEXTURE_WIDTH,
+				INFOBAR_TEXTURE_HEIGHT,
+				GL_RGBA,
+				GL_UNSIGNED_BYTE,
+				gInfobarTexture,
+				0);
+		
+		Draw3dsFullscreenTexture(gInfobarTextureName, false);
+		gInfobarTextureIsDirty = false;
+	}
+#endif
 }
 
 
@@ -410,7 +470,12 @@ char		path[256];
 
 	for (int i = 0; i < MAX_SPRITES; i++)
 	{
+#ifdef __3DS__
+		// Use our own infobar textures
+		snprintf(path, sizeof(path), ":Images:Infobar:%d.tga", 4128 + i);
+#else
 		snprintf(path, sizeof(path), ":Images:Infobar:%d.tga", 128 + i);
+#endif
 
 		FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, path, &spec);
 		err = ReadTGA(&spec, &pixelData, &header, true);
@@ -446,7 +511,11 @@ static void LoadNitroGaugeTemplate(void)
 	TGAHeader tga;
 	OSErr err;
 	
+#ifdef __3DS__
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Images:Infobar:NitroGauge3ds.tga", &spec);
+#else
 	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Images:Infobar:NitroGauge.tga", &spec);
+#endif
 	err = ReadTGA(&spec, &gNitroGaugeData, &tga, false);
 	GAME_ASSERT(err == noErr);
 	GAME_ASSERT(tga.imageType == TGA_IMAGETYPE_RAW_GRAYSCALE);
@@ -988,16 +1057,30 @@ int	i,x;
 		DrawSprite(SPRITE_LADYBUG, LADYBUG_X, LADYBUG_Y);
 	
 
+#ifdef __3DS__
+	x = LADYBUG_X + 104;
+#else
 	x = LADYBUG_X + 80;
+#endif
 	for (i = 0; i < gNumLadyBugsThisArea; i++)
 	{
 		if (i&1)
 		{
+#ifdef __3DS__
+			DrawSprite(SPRITE_LADYBUG_SMALL, x, LADYBUG_Y+39);
+			x += 29;
+#else
 			DrawSprite(SPRITE_LADYBUG_SMALL, x, LADYBUG_Y+30);
 			x += 22;
+#endif	
 		}
+#ifdef __3DS__
+		else
+			DrawSprite(SPRITE_LADYBUG_SMALL, x, LADYBUG_Y+9);
+#else
 		else
 			DrawSprite(SPRITE_LADYBUG_SMALL, x, LADYBUG_Y+7);
+#endif
 	}
 }
 
@@ -1270,23 +1353,11 @@ void SubmitInfobarOverlay(void)
 	if (!gInfobarTextureName)
 		return;
 
+#ifndef __3DS__
+	// On 3ds, top infobar is done in UpdateInfobar()
 	// If the screen port has dirty pixels ("damaged"), update the texture
 	if (gInfobarTextureIsDirty)
 	{
-#ifdef __3DS__
-		// Because picaGL lacks glPixelStorei, the last argument of Render_UpdateTexture
-		// must be 0. A workaround is to update the entire texture instead of just a portion of it.
-		Render_UpdateTexture(
-				gInfobarTextureName,
-				0,
-				0,
-				INFOBAR_TEXTURE_WIDTH,
-				INFOBAR_TEXTURE_HEIGHT,
-				GL_RGBA,
-				GL_UNSIGNED_BYTE,
-				gInfobarTexture,
-				0);
-#else
 		Render_UpdateTexture(
 				gInfobarTextureName,
 				gInfobarTextureDirtyRect.left,
@@ -1297,13 +1368,13 @@ void SubmitInfobarOverlay(void)
 				GL_UNSIGNED_BYTE,
 				GetInfobarTextureOffset(gInfobarTextureDirtyRect.left, gInfobarTextureDirtyRect.top),
 				INFOBAR_TEXTURE_WIDTH);
-#endif
 
 		// Clear damage
 		gInfobarTextureIsDirty = false;
 	}
 
 	Render_SubmitMesh(gInfobarTopMesh, NULL, &kDefaultRenderMods_UI, &kQ3Point3D_Zero);
+#endif
 
 	if (gGamePrefs.showBottomBar || gBossHealthWasUpdated)
 		Render_SubmitMesh(gInfobarBottomMesh, NULL, &kDefaultRenderMods_UI, &kQ3Point3D_Zero);

@@ -276,81 +276,6 @@ static void CreateLights(QD3DLightDefType *lightDefPtr)
 }
 
 
-#ifdef __3DS__
-// Do not call during rendering loop. This should only be called at the start of the scene.
-// Note: we tried preloading the textures instead of loading them when calling this function,
-// but this caused the texture to be corrupt on hardware for some reason.
-void QD3D_Draw3dsStaticScreen(int textureRezID, bool topScreen)
-{
-	// Define quad
-	static GLfloat points[] = {
-		0.0f,   0.0f,   0.0f,
-		640.0f, 0.0f,   0.0f,
-		640.0f, 480.0f, 0.0f,
-		0.0f,   480.0f, 0.0f
-	};
-	static GLfloat UVs[] = {
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f
-	};
-	static GLushort indices[] = {
-		0, 1, 2,
-		0, 2, 3
-	};
-
-	bool oldTopScreen = IsTopScreenSelected3ds();
-	GLuint texture = QD3D_LoadTextureFile(textureRezID, kRendererTextureFlags_None);
-
-	// Wait for VBlank to prevent rendering issues
-	WaitForVBlank3ds();
-
-	SelectTopScreen3ds(topScreen);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-	// Enable texture
-	glEnable(GL_TEXTURE_2D);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	Render_BindTexture(texture);
-	glTexCoordPointer(2, GL_FLOAT, 0, UVs);
-
-	glVertexPointer(3, GL_FLOAT, 0, points);
-
-	// Setup transformation
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0,640,480,0,0,1000);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-
-	// Render
-	glDrawElements(GL_TRIANGLES, 2*3, GL_UNSIGNED_SHORT, indices);
-	SwapBuffers3ds();
-
-	// Reset and cleanup
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-
-	glDisable(GL_TEXTURE_2D);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	SelectTopScreen3ds(oldTopScreen);
-
-	// We can already delete the texture; the framebuffer won't be cleared for a while
-	glDeleteTextures(1, &texture);
-}
-#endif
-
-
 /******************* QD3D DRAW SCENE *********************/
 
 void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(const QD3DSetupOutputType *))
@@ -399,6 +324,7 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(const QD
 	Render_FlushQueue();
 
 	Render_Enter2D_Full640x480();
+	// On 3ds, only bottom infobar is drawn here
 	SubmitInfobarOverlay();			// draw 2D elements on top
 	if (gGammaFadeFactor < 1.0f)
 		Render_DrawFadeOverlay(gGammaFadeFactor);

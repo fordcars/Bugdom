@@ -59,9 +59,11 @@ void DoAlert(const char* format, ...)
 	va_end(args);
 
 	printf("BUGDOM ALERT: %s\n", message);
-#ifndef __3DS__
+#ifdef __3DS__
+	while(ShouldDoMainLoop3ds()) {}
+	ExitToShell();
+#else
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Bugdom", message, gSDLWindow);
-	while (ShouldDoMainLoop3ds()) {}
 #endif
 }
 
@@ -82,9 +84,10 @@ void DoFatalAlert(const char* format, ...)
 	va_end(args);
 
 	printf("BUGDOM FATAL ALERT: %s\n", message);
-#ifndef __3DS__
+#ifdef __3DS__
+	while(ShouldDoMainLoop3ds()) {}
+#else
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Bugdom", message, gSDLWindow);
-	while (ShouldDoMainLoop3ds()) {}
 #endif
 	ExitToShell();
 }
