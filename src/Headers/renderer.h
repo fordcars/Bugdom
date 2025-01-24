@@ -202,6 +202,7 @@ TQ3Vector2D FitRectKeepAR(
 	float displayHeight);
 
 #ifdef __3DS__
-void Draw3dsFullscreenTexture(GLuint texture, bool topScreen);
+void Draw3dsFullscreenTexture(GLuint texture, float uvLeft, float uvTop,
+							  float uvRight, float uvBottom, bool topScreen);
 void Draw3dsStaticScreen(int textureRezID, bool topScreen);
 #endif

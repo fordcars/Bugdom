@@ -1244,7 +1244,8 @@ TQ3Area Render_GetAdjustedViewportRect(Rect paneClip, int logicalWidth, int logi
 
 #ifdef __3DS__
 // Do not call during rendering loop
-void Draw3dsFullscreenTexture(GLuint texture, bool topScreen)
+void Draw3dsFullscreenTexture(GLuint texture, float uvLeft, float uvTop,
+							  float uvRight, float uvBottom, bool topScreen)
 {
 	// Define quad
 	static GLfloat points[] = {
@@ -1253,15 +1254,15 @@ void Draw3dsFullscreenTexture(GLuint texture, bool topScreen)
 		640.0f, 480.0f, 0.0f,
 		0.0f,   480.0f, 0.0f
 	};
-	static GLfloat UVs[] = {
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f
-	};
 	static GLushort indices[] = {
 		0, 1, 2,
 		0, 2, 3
+	};
+	GLfloat UVs[] = {
+		uvLeft, uvTop,
+		uvRight, uvTop,
+		uvRight, uvBottom,
+		uvTop, uvBottom
 	};
 
 	bool oldTopScreen = IsTopScreenSelected3ds();
@@ -1313,7 +1314,7 @@ void Draw3dsFullscreenTexture(GLuint texture, bool topScreen)
 void Draw3dsStaticScreen(int textureRezID, bool topScreen)
 {
 	GLuint texture = QD3D_LoadTextureFile(textureRezID, kRendererTextureFlags_None);
-	Draw3dsFullscreenTexture(texture, topScreen);
+	Draw3dsFullscreenTexture(texture, 0.0f, 0.0f, 1.0f, 1.0f, topScreen);
 
 	// We can already delete the texture; the framebuffer won't be cleared for a while
 	glDeleteTextures(1, &texture);

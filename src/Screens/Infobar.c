@@ -35,9 +35,9 @@ static void ShowBossHealth(void);
 /*    CONSTANTS             */
 /****************************/
 
-#define	BOSS_WIDTH			200
-
 #ifdef __3DS__
+	#define	BOSS_WIDTH			200
+
 	#define	LIVES_X				150
 	#define	LIVES_Y				76
 	#define	LIVES_WIDTH			50
@@ -65,7 +65,15 @@ static void ShowBossHealth(void);
 
 	#define	BLUE_CLOVER_X		0
 	#define	BLUE_CLOVER_Y		80
+
+	// Make power of 2 because this is what we do for other platforms
+	// and it helps dealing with sketchy math below.
+	#define	INFOBAR_TEXTURE_WIDTH	512
+	#define	INFOBAR_TEXTURE_HEIGHT	512
+	#define	BOTTOM_BAR_Y_IN_TEXTURE	240
 #else
+	#define	BOSS_WIDTH			200
+
 	#define	LIVES_X				11
 	#define	LIVES_Y				0
 	#define	LIVES_WIDTH			42
@@ -93,16 +101,11 @@ static void ShowBossHealth(void);
 
 	#define	BLUE_CLOVER_X		196
 	#define	BLUE_CLOVER_Y		0
-#endif
 
-#ifdef __3DS__
-	#define	INFOBAR_TEXTURE_WIDTH	320
-	#define	INFOBAR_TEXTURE_HEIGHT	240
-#else
 	#define	INFOBAR_TEXTURE_WIDTH	1024
 	#define	INFOBAR_TEXTURE_HEIGHT	128
+	#define	BOTTOM_BAR_Y_IN_TEXTURE	64
 #endif
-#define	BOTTOM_BAR_Y_IN_TEXTURE	64
 
 
 		/* INFOBAR OBJTYPES */
@@ -297,7 +300,7 @@ void InitInfobar(void)
 
 			/* CREATE TEXTURE BUFFER */
 
-	gInfobarTexture = (uint32_t*) NewPtrClear(sizeof(uint32_t) * 1024 * 128);
+	gInfobarTexture = (uint32_t*) NewPtrClear(sizeof(uint32_t) * INFOBAR_TEXTURE_WIDTH * INFOBAR_TEXTURE_HEIGHT);
 
 			/* DO TOP */
 
@@ -305,9 +308,7 @@ void InitInfobar(void)
 
 			/* DO BOTTOM */
 
-#ifndef __3DS__
 	DrawSprite(SPRITE_INFOBARBOTTOM, 0, BOTTOM_BAR_Y_IN_TEXTURE);
-#endif
 
 			/* CREATE TEXTURE */
 
@@ -348,21 +349,39 @@ void InitInfobar(void)
 	if (!gGamePrefs.showBottomBar)
 	{
 		// Make a mesh that only shows the boss's health
+#ifdef __3DS__
+		gInfobarBottomMesh = MakeQuadMesh_UI(
+				(640-BOSS_WIDTH)/2, 420+20, (640+BOSS_WIDTH)/2, 420+40,
+				uMult * ((400-BOSS_WIDTH)/2 + 0.5f),
+				vMult * (BOTTOM_BAR_Y_IN_TEXTURE + 12 + 0.5f),
+				uMult * ((400+BOSS_WIDTH)/2 - 0.5f),
+				vMult * (BOTTOM_BAR_Y_IN_TEXTURE + 24 - 0.5f));
+#else
 		gInfobarBottomMesh = MakeQuadMesh_UI(
 				(640-BOSS_WIDTH)/2, 420+20, (640+BOSS_WIDTH)/2, 420+40,
 				uMult * ((640-BOSS_WIDTH)/2 + 0.5f),
 				vMult * (BOTTOM_BAR_Y_IN_TEXTURE + 20 + 0.5f),
 				uMult * ((640+BOSS_WIDTH)/2 - 0.5f),
 				vMult * (BOTTOM_BAR_Y_IN_TEXTURE + 40 - 0.5f));
+#endif
 	}
 	else
 	{
+#ifdef __3DS__
+		gInfobarBottomMesh = MakeQuadMesh_UI(
+				0, 420, 640, 480,
+				uMult * 0,
+				vMult * BOTTOM_BAR_Y_IN_TEXTURE,
+				uMult * 400,
+				vMult * (BOTTOM_BAR_Y_IN_TEXTURE + 38));
+#else
 		gInfobarBottomMesh = MakeQuadMesh_UI(
 				0, 420, 640, 480,
 				uMult * 0,
 				vMult * BOTTOM_BAR_Y_IN_TEXTURE,
 				uMult * 640,
 				vMult * (BOTTOM_BAR_Y_IN_TEXTURE + 60));
+#endif
 	}
 	gInfobarBottomMesh->texturingMode = kQ3TexturingModeOpaque;
 	gInfobarBottomMesh->glTextureName = gInfobarTextureName;
@@ -446,7 +465,8 @@ unsigned long	bits;
 				gInfobarTexture,
 				0);
 		
-		Draw3dsFullscreenTexture(gInfobarTextureName, false);
+		Draw3dsFullscreenTexture(gInfobarTextureName,
+			0.0f, 0.0f, 320.0f/INFOBAR_TEXTURE_WIDTH, 240.0f/INFOBAR_TEXTURE_HEIGHT, false);
 		gInfobarTextureIsDirty = false;
 	}
 #endif
@@ -1313,10 +1333,17 @@ int		w,x;
 		/* DRAW IT */
 		/***********/
 			
+#ifdef __3DS__
+	r.top = BOTTOM_BAR_Y_IN_TEXTURE + 12;
+	r.bottom = r.top + 12;
+	r.left = 200-(BOSS_WIDTH/2);
+	x = r.right = r.left + BOSS_WIDTH;
+#else
 	r.top = BOTTOM_BAR_Y_IN_TEXTURE + 20;
 	r.bottom = r.top + 20;
 	r.left = 320-(BOSS_WIDTH/2);
 	x = r.right = r.left + BOSS_WIDTH;
+#endif
 			
 		/* FRAME */
 
