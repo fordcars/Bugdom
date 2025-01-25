@@ -1,11 +1,23 @@
-# Bugdom
+# Bugdom 3DS
 
-This is Pangea Software's **Bugdom** updated to run on modern operating systems.
-This version, at https://github.com/jorio/bugdom, is approved by Pangea Software.
+This is a port of Pangea Software’s 3D adventure game **Bugdom** to the Nintendo 3DS, based off [Jorio's amazing port](https://github.com/jorio/Bugdom).
 
-**Download the game for macOS, Windows and Linux here:** https://github.com/jorio/bugdom/releases
+**Download the game for Nintendo 3DS here:** https://github.com/fordcars/Bugdom/releases
 
-![Bugdom Screenshot](docs/screenshot.webp)
+![Bugdom Screenshot](docs/3ds/lawn_top_screen.png)
+![Bugdom Screenshot](docs/3ds/beehive_top_screen.png)
+![Bugdom Screenshot](docs/3ds/dragonfly_top_screen.png)
+![Bugdom Screenshot](docs/3ds/night_top_screen.png)
+
+## Nintendo 3DS Controls
+* Circle-Pad/D-Pad: walk/roll
+* A: jump/boost
+* B: morph
+* X: buddy bug
+* Y: kick
+* L-Shoulder: look left
+* R-Shoulder: look right
+* Start: pause
 
 ## About this port
 
@@ -23,7 +35,8 @@ A port of the sequel is also available: [Bugdom 2](https://github.com/jorio/Bugd
 
 ## Documentation
 
-- [BUILD.md](BUILD.md) — How to build on macOS, Windows or Linux.
+- [BUILD_3DS](BUILD_3DS.md) – How to build the game from source for 3DS
+- [BUILD](BUILD.md) – How to build the game from source for Computers
 - [CHANGELOG.md](CHANGELOG.md) — Bugdom version history.
 - [LICENSE.md](LICENSE.md) — Licensing information (see also below).
 - [Instructions.pdf](docs/Instructions.pdf) — Original instruction manual. Int'l versions:
