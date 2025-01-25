@@ -19,6 +19,13 @@ This is a port of Pangea Software’s 3D adventure game **Bugdom** to the Ninten
 * R-Shoulder: look right
 * Start: pause
 
+## Installation:
+
+Simply download the 3dsx file [here](https://github.com/fordcars/Bugdom/releases) and place on your SD card in the `3ds` directory.
+
+### Note:
+DSP firmware must be present at `sdmc:/3ds/dspfirm.cdc`. This can be obtained with [Luma3DS](https://github.com/LumaTeam/Luma3DS)—simply select "Miscellaneous options..." in the Rosalina menu, then "Dump DSP firmware" from there. If running on an emulator, you can simply copy an empty file named `dspfirm.cdc` to a folder named `3ds` on your virtual SD card.
+
 ## About this port
 
 Bugdom is a 1999 Macintosh game by Pangea Software. You play as Rollie McFly, a pill bug on a quest to save ladybugs from King Thorax’s iron grip on the Bugdom.
