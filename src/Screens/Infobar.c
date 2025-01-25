@@ -18,6 +18,7 @@
 /*    PROTOTYPES            */
 /****************************/
 
+static uint32_t* GetInfobarTextureOffset(int x, int y);
 static int GetSpriteWidth(int spriteNum);
 static void DrawSprite(int spriteNum, int x, int y);
 static void EraseSprite(int spriteNum, int x, int y);
@@ -452,18 +453,16 @@ unsigned long	bits;
 #ifdef __3DS__
 	if (gInfobarTextureIsDirty)
 	{
-		// Because picaGL lacks glPixelStorei, the last argument of Render_UpdateTexture
-		// must be 0. A workaround is to update the entire texture instead of just a portion of it.
 		Render_UpdateTexture(
 				gInfobarTextureName,
-				0,
-				0,
-				INFOBAR_TEXTURE_WIDTH,
-				INFOBAR_TEXTURE_HEIGHT,
+				gInfobarTextureDirtyRect.left,
+				gInfobarTextureDirtyRect.top,
+				gInfobarTextureDirtyRect.right - gInfobarTextureDirtyRect.left,
+				gInfobarTextureDirtyRect.bottom - gInfobarTextureDirtyRect.top,
 				GL_RGBA,
 				GL_UNSIGNED_BYTE,
-				gInfobarTexture,
-				0);
+				GetInfobarTextureOffset(gInfobarTextureDirtyRect.left, gInfobarTextureDirtyRect.top),
+				INFOBAR_TEXTURE_WIDTH);
 		
 		Draw3dsFullscreenTexture(gInfobarTextureName,
 			0.0f, 0.0f, 320.0f/INFOBAR_TEXTURE_WIDTH, 240.0f/INFOBAR_TEXTURE_HEIGHT, false);
