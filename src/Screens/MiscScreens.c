@@ -45,8 +45,12 @@ TQ3TriMeshData* gPauseQuad = nil;
 
 static void CheckPauseCameraKeys(void)
 {
+#ifdef __3DS__
+	const float pauseDelay = 0.0f;
+#else
 	const float fadeSpeed = 3.0f;
 	const float pauseDelay = -10 * fadeSpeed;
+#endif
 
 	if (GetKeyState(kKey_SwivelCameraLeft))
 	{
@@ -73,9 +77,11 @@ static void CheckPauseCameraKeys(void)
 		UpdateCamera();
 		if (gCyclorama && gCyclorama->MoveCall)
 			gCyclorama->MoveCall(gCyclorama);
+#ifndef __3DS__
 		gPauseQuad->diffuseColor.a += gFramesPerSecondFrac * fadeSpeed;
 		if (gPauseQuad->diffuseColor.a > 1.0f)
 			gPauseQuad->diffuseColor.a = 1.0f;
+#endif
 	}
 }
 
@@ -125,7 +131,11 @@ int curState = kPauseChoice_Resume;
 	gPauseQuad->glTextureName = textures[curState];		// resume
 	gPauseQuad->diffuseColor = (TQ3ColorRGBA) {1, 1, 1, 1};
 
+#ifdef __3DS__
+	float xs = .7f;
+#else
 	float xs = .4f;
+#endif
 	float ys = xs/imageAspectRatio;
 
 	gPauseQuad->points[0] = (TQ3Point3D) { -xs, -ys, 0 };
