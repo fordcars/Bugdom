@@ -618,14 +618,21 @@ int mouseY = 0;
 				
 	gNewObjectDefinition.group 		= MODEL_GROUP_BONUS;	
 	gNewObjectDefinition.type 		= BONUS_MObjType_SaveIcon;	
+#ifdef __3DS__
+	gNewObjectDefinition.coord.x 	= -80;
+	gNewObjectDefinition.coord.y 	= -140;
+	gNewObjectDefinition.coord.z 	= 0;
+	gNewObjectDefinition.scale 		= .9;
+#else
 	gNewObjectDefinition.coord.x 	= -50;
 	gNewObjectDefinition.coord.y 	= -100-70;
 	gNewObjectDefinition.coord.z 	= 0;
+	gNewObjectDefinition.scale 		= .7;
+#endif
 	gNewObjectDefinition.slot 		= 100;
 	gNewObjectDefinition.flags 		= 0;
 	gNewObjectDefinition.moveCall 	= MoveBonusText;
 	gNewObjectDefinition.rot 		= 0;
-	gNewObjectDefinition.scale 		= .7;
 	gSaveYes = MakeNewDisplayGroupObject(&gNewObjectDefinition);
 	gSaveYes->IsPickable = true;
 	gSaveYes->PickID = 0;
@@ -634,14 +641,21 @@ int mouseY = 0;
 				
 	gNewObjectDefinition.group 		= MODEL_GROUP_BONUS;	
 	gNewObjectDefinition.type 		= BONUS_MObjType_DontSaveIcon;	
+#ifdef __3DS__
+	gNewObjectDefinition.coord.x 	= 80;
+	gNewObjectDefinition.coord.y 	= -140;
+	gNewObjectDefinition.coord.z 	= 0;
+	gNewObjectDefinition.scale 		= .9;
+#else
 	gNewObjectDefinition.coord.x 	= 50;
 	gNewObjectDefinition.coord.y 	= -100-70;
 	gNewObjectDefinition.coord.z 	= 0;
+	gNewObjectDefinition.scale 		= .7;
+#endif
 	gNewObjectDefinition.slot 		= 100;
 	gNewObjectDefinition.flags 		= 0;
 	gNewObjectDefinition.moveCall 	= MoveBonusText;
 	gNewObjectDefinition.rot 		= 0;
-	gNewObjectDefinition.scale 		= .7;
 	gSaveNo = MakeNewDisplayGroupObject(&gNewObjectDefinition);
 	gSaveNo->IsPickable = true;
 	gSaveNo->PickID = 1;
@@ -666,9 +680,13 @@ int mouseY = 0;
 			TextMeshDef tmd;
 			TextMesh_FillDef(&tmd);
 			tmd.align = TEXTMESH_ALIGN_CENTER;
+#ifdef __3DS__
+			tmd.scale = 0.4f;
+			tmd.coord = (TQ3Point3D) {-80,-95,0};
+#else
 			tmd.scale = 0.2f;
-
 			tmd.coord = (TQ3Point3D) {-50,-100,0};
+#endif
 			tmd.color = TQ3ColorRGBA_FromInt(0x0080FFFF);
 			if (gCurrentSaveSlot >= 0)
 			{
@@ -678,10 +696,19 @@ int mouseY = 0;
 			}
 			else
 			{
+#ifdef __3DS__
+				// Text alignment is a bit off for some reason
+				TextMesh_Create(&tmd, "Save ");
+#else
 				TextMesh_Create(&tmd, "Save");
+#endif
 			}
 
+#ifdef __3DS__
+			tmd.coord = (TQ3Point3D) {80,-100,0};
+#else
 			tmd.coord = (TQ3Point3D) {50,-100,0};
+#endif
 			tmd.color = TQ3ColorRGBA_FromInt(0xe54c19ff);
 			TextMesh_Create(&tmd, "Don\222t save yet");
 

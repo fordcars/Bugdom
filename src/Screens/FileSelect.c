@@ -273,7 +273,11 @@ static void MakeFileObjects(const int fileNumber, bool createPickables)
 
 	const float x = gFloppyPositions[fileNumber].x;
 	const float y = gFloppyPositions[fileNumber].y +
+#ifdef __3DS__
+			(gCurrentFileScreenType == FILE_SELECT_SCREEN_TYPE_LOAD? 5 : 0);
+#else
 			(gCurrentFileScreenType == FILE_SELECT_SCREEN_TYPE_LOAD? 15: 0);
+#endif
 
 	const float gs = .9f;			// global scale of objects created in this function
 	const float deleteScale = 0.33f;
@@ -315,7 +319,11 @@ static void MakeFileObjects(const int fileNumber, bool createPickables)
 	tmd.shadowColor		= gTextShadowColor;
 	tmd.slot			= objNodeSlotID;
 	tmd.coord.x			= x;
+#ifdef __3DS__
+	tmd.coord.y			= y+105 * gs;
+#else
 	tmd.coord.y			= y+90 * gs;
+#endif
 	tmd.scale			= 0.6f * gs;
 	TextMesh_Create(&tmd, textBuffer);
 
@@ -324,8 +332,13 @@ static void MakeFileObjects(const int fileNumber, bool createPickables)
 	{
 		snprintf(textBuffer, sizeof(textBuffer), "Level %d: %s", 1 + saveData.realLevel, kLevelNames[saveData.realLevel]);
 
+#ifdef __3DS__
+		tmd.coord.y	= y+75*gs;
+		tmd.scale	= .3f * gs;
+#else
 		tmd.coord.y	= y+70*gs;
 		tmd.scale	= .2f * gs;
+#endif
 		TextMesh_Create(&tmd, textBuffer);
 
 		time_t timestamp = saveData.timestamp;
