@@ -40,7 +40,10 @@ INCLUDES	:=	src/Headers extern extern/Pomme/src extern/Pomme/src/QD3D extern/Pom
 GRAPHICS	:=	gfx
 GFXBUILD	:=	$(BUILD)
 ROMFS		:=	Data
-ICON        :=  packaging/Bugdom48.png
+APP_TITLE			:=  Bugdom
+APP_DESCRIPTION		:=  3D action/adventure game.
+APP_AUTHOR			:=  Pangea Software, Iliyas Jorio, Carl Hewett
+ICON 				:=  packaging/Bugdom48.png
 #GFXBUILD	:=	$(ROMFS)/gfx
 
 #---------------------------------------------------------------------------------

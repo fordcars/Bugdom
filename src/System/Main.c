@@ -496,12 +496,11 @@ QD3DSetupInputType	viewDef;
 	
 	gBestCheckPoint			= -1;								// no checkpoint yet
 
-		
 	if (gSuperTileActiveRange == 5)								// set yon clipping value
 	{
 #ifdef __3DS__
-		gCurrentYon = YON_DISTANCE + 500;
-		gCycScale = 45;
+		gCurrentYon = YON_DISTANCE + 700;
+		gCycScale = 63;
 #else
 		gCurrentYon = YON_DISTANCE + 1700;
 		gCycScale = 81;
